@@ -6,6 +6,8 @@ cd $(dirname $0)
 
 platforms=(linux/amd64 linux/arm64 linux/arm64/v8)
 
+export DOCKER_BUILDKIT=1 # for docker build cache
+
 function build(){
 	tag=$1
 	platform=$2
