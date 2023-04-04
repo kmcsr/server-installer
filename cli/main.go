@@ -22,7 +22,7 @@ func parseArgs(){
 		"type of the server [" + strings.Join(installer.GetInstallerNames(), ",") + "] ")
 	flag.StringVar(&TargetVersion, "version", TargetVersion,
 		"the version of the server need to be installed, default is the latest")
-	flag.StringVar(&InstallPath, "path", InstallPath,
+	flag.StringVar(&InstallPath, "output", InstallPath,
 		"the path need to be installed")
 	flag.StringVar(&ExecutableName, "name", ExecutableName,
 		"the executable name, without suffix such as '.sh' or '.jar'")
