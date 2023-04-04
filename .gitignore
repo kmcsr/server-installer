@@ -7,3 +7,6 @@
 
 # output
 /output
+
+# tmp
+/*.tmp

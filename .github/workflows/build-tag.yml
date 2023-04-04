@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build docker
+        name: Build docker images
         env:
           PUBLIC_PREFIX: craftmine/server-installer
         run: /usr/bin/env bash ./dockerbuild.sh
@@ -43,6 +43,8 @@ jobs:
           go-version: '1.20'
       -
         name: Build binarys
+        env:
+          ASYNC_BUILD: true
         run: /usr/bin/env bash ./build.sh
       -
         name: Create Release
