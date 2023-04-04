@@ -4,7 +4,7 @@
 
 Minecraft Server Installer
 [![License](https://img.shields.io/github/license/kmcsr/server-installer)](https://github.com/kmcsr/server-installer/LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/kmcsr//server-installer/build-tag.yml)](https://github.com/kmcsr/server-installer/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/kmcsr/server-installer/build-tag.yml)](https://github.com/kmcsr/server-installer/actions)
 [![Downloads](https://img.shields.io/github/downloads/kmcsr/server-installer/total)](https://github.com/kmcsr/server-installer/releases)
 ========
 
