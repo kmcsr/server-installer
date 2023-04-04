@@ -2,7 +2,11 @@
 - English
 - [简体中文](./README_zh.MD)
 
-# Minecraft Server Installer
+Minecraft Server Installer
+[![License](https://img.shields.io/github/license/kmcsr/server-installer)](https://github.com/kmcsr/server-installer/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/kmcsr//server-installer/build-tag.yml)](https://github.com/kmcsr/server-installer/actions)
+[![Downloads](https://img.shields.io/github/downloads/kmcsr/server-installer/total)](https://github.com/kmcsr/server-installer/releases)
+========
 
 *If this project is useful, please give a star :)*
 
