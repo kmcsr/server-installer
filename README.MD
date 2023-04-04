@@ -47,3 +47,9 @@ minecraft_installer -name minecraft_server -version 1.16.5 -server forge
 # Install minecraft 1.19.2 fabric server into server/minecraft_server.jar
 minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path server
 ```
+
+## TODO
+
+[ ] PaperMC
+[ ] List server versions
+[ ] Configurable proxy
