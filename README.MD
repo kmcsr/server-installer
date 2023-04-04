@@ -3,6 +3,8 @@
 
 *If this project is useful, please give a star :)*
 
+[Releases Page](https://github.com/kmcsr/server-installer/releases/)
+
 ## Introduction
 
 This is a minecraft server installer
@@ -18,7 +20,7 @@ Flags:
         show this help message
   -name string
         the executable name, without suffix such as '.sh' or '.jar' (default "minecraft")
-  -path string
+  -output string
         the path need to be installed (default ".")
   -server string
         type of the server [fabric,forge,spigot,vanilla]  (default "vanilla")
@@ -39,7 +41,7 @@ minecraft_installer -name minecraft_server -version 1.19.2 -server forge
 # Hint: forge installer will make run scripts for the minecraft version that higher or equal than 1.17
 #       for version that less than 1.17, you still need to use 'java -jar' to run the server
 
-# Install minecraft 1.19.2 forge server into minecraft_server.jar
+# Install minecraft 1.16.5 forge server into minecraft_server.jar
 minecraft_installer -name minecraft_server -version 1.16.5 -server forge
 ```
 
