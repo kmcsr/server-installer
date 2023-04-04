@@ -4,14 +4,15 @@ cd $(dirname $0)
 
 [ -n "$PUBLIC_PREFIX" ] || PUBLIC_PREFIX=craftmine/server-installer
 
+[ -n "$TAG" ] || { echo 'Error: You must give a env TAG' ; exit 1; }
+
 platforms=(linux/amd64 linux/arm64 linux/arm64/v8)
 
 export DOCKER_BUILDKIT=1 # for docker build cache
 
 function build(){
-	tag=$1
-	platform=$2
-	fulltag="${PUBLIC_PREFIX}:${tag}"
+	platform=$1
+	fulltag="${PUBLIC_PREFIX}:${TAG}"
 	echo
 	echo "==> building $fulltag for $platform"
 	echo
@@ -33,5 +34,5 @@ function build(){
 }
 
 for platform in "${platforms[@]}"; do
-	build v1 $platform || exit $?
+	build $platform || exit $?
 done

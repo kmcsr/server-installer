@@ -29,6 +29,7 @@ jobs:
         name: Build docker images
         env:
           PUBLIC_PREFIX: craftmine/server-installer
+          TAG: ${{ github.ref }}
         run: /usr/bin/env bash ./dockerbuild.sh
   release:
     runs-on: ubuntu-latest
