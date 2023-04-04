@@ -15,7 +15,7 @@ This is a minecraft server online installer
 You can use this cli to easily install minecraft server.
 We also support fabric,forge,spigot
 
-> Warn: For spigot server, you **must install suitable openjdk** (not only jre) and git
+> Warn: For spigot server, you **must install suitable openjdk** (not only jre) and git.  
 >       See <https://www.spigotmc.org/wiki/buildtools/#prerequisites>
 
 ## Flags

@@ -15,7 +15,7 @@
 你可以使用本程序简单的安装minecraft及其附属服务端.
 我们目前支持 vanilla,fabric,forge,spigot
 
-> 警告: 对于spigot服务端, 您**必须预先安装合适的openjdk**(不仅仅是jre)以及git
+> 警告: 对于spigot服务端, 您**必须预先安装合适的openjdk**(不仅仅是jre)以及git.  
 >       见<https://www.spigotmc.org/wiki/buildtools/#prerequisites>
 
 ## 选项
