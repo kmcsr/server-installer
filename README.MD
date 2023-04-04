@@ -8,7 +8,7 @@
 This is a minecraft server installer
 
 You can use this cli to easily install minecraft server.
-We also support including fabric,forge,spigot
+We also support fabric,forge,spigot
 
 ## Flags
 
