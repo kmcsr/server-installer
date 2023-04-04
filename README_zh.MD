@@ -1,4 +1,7 @@
 
+- [English](./README.MD)
+- 简体中文
+
 # Minecraft Server Installer
 
 *如果本项目有用, 请给个star吧 :)*

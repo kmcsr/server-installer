@@ -1,4 +1,7 @@
 
+- English
+- [简体中文](./README_zh.MD)
+
 # Minecraft Server Installer
 
 *If this project is useful, please give a star :)*
