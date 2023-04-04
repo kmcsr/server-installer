@@ -7,7 +7,7 @@ on:
       - 'v*'
 
 jobs:
-  release:
+  release-docker-images:
     runs-on: ubuntu-latest
     steps:
       -
@@ -30,6 +30,12 @@ jobs:
         env:
           PUBLIC_PREFIX: craftmine/server-installer
         run: /usr/bin/env bash ./dockerbuild.sh
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Action Checkout
+        uses: actions/checkout@v3
       -
         name: Build binarys
         run: /usr/bin/env bash ./build.sh
