@@ -50,6 +50,6 @@ minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path 
 
 ## TODO
 
-[ ] PaperMC
-[ ] List server versions
-[ ] Configurable proxy
+- [ ] PaperMC
+- [ ] List server versions
+- [ ] Configurable proxy
