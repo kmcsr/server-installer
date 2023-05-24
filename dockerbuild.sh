@@ -5,6 +5,8 @@ cd $(dirname $0)
 [ -n "$PUBLIC_PREFIX" ] || PUBLIC_PREFIX=craftmine/server-installer
 
 [ -n "$TAG" ] || { echo 'Error: You must give a env TAG' ; exit 1; }
+# TAG=refs/tags/v1.2.0
+TAG=$(basename ${TAG})
 
 platforms=(linux/amd64 linux/arm64 linux/arm64/v8)
 
