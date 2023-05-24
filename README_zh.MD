@@ -12,8 +12,23 @@
 
 这是一个需要联网的minecraft服务端下载器
 
-你可以使用本程序简单的安装minecraft及其附属服务端.
-我们目前支持 vanilla,fabric,forge,spigot 以及一些格式的模组包
+你可以使用本程序简单的安装minecraft及其附属服务端.  
+我们也支持一些修改服务端以及一些格式的整合包
+
+| 服务器类型    | 支持  |
+|-------------|-------|
+| 原版         | 是    |
+| Fabric      | 是    |
+| Forge       | 是    |
+| Quilt       | 是    |
+| Spigot      | 是    |
+| PaperMC     | 进行中 |
+| ArcLight    | 进行中 |
+
+| 整合包类型     | 支持     |
+|--------------|----------|
+| Modrinth     | 是       |
+| Curseforge   | 计划中/否 |
 
 > 警告: 对于spigot服务端, 您**必须预先安装合适的openjdk**(不仅仅是jre)以及git.  
 >       见<https://www.spigotmc.org/wiki/buildtools/#prerequisites>
@@ -34,7 +49,7 @@ Args:
   <server_type> string
         服务端类型 [fabric forge spigot vanilla]  (默认 "vanilla")
   <modpack_file> filepath | URL
-        模组包的本地路径或URL. 如果为URL则会先将模组包下载到临时路径
+        整合包的本地路径或URL. 如果为URL则会先将整合包下载到临时路径
 ```
 
 ## 使用示例
@@ -61,7 +76,7 @@ minecraft_installer -name minecraft_server -version 1.16.5 -server forge
 minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path server
 ```
 
-### 安装模组包
+### 安装整合包
 
 ```sh
 # Install the modpack from local to the current directory

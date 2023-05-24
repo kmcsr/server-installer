@@ -16,8 +16,23 @@ Minecraft Server Installer
 
 This is a minecraft server online installer
 
-You can use this cli to easily install minecraft server.
-We also support fabric,forge,spigot and some type of modpacks
+You can use this cli to easily install minecraft server.  
+We also support some types of servers and modpacks
+
+| Server Type | Support |
+|-------------|---------|
+| Vanilla     | true    |
+| Fabric      | true    |
+| Forge       | true    |
+| Quilt       | true    |
+| Spigot      | true    |
+| PaperMC     | TODO    |
+| ArcLight    | TODO    |
+
+| Modpack Type | Support |
+|--------------|---------|
+| Modrinth     | true    |
+| Curseforge   | plan/no |
 
 > Warn: For spigot server, you **must install suitable openjdk** (not only jre) and git.  
 >       See <https://www.spigotmc.org/wiki/buildtools/#prerequisites>
@@ -36,7 +51,7 @@ Flags:
         the version of the server need to be installed, default is the latest (default "latest")
 Args:
   <server_type> string
-        type of the server [fabric forge spigot vanilla] (default "vanilla" )
+        type of the server [fabric forge quilt spigot vanilla] (default "vanilla" )
   <modpack_file> filepath | URL
         the modpack's local path or an URL. If it's an URL, installer will download the modpack first
 ```
