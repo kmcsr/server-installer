@@ -29,14 +29,14 @@ func initLogger(){
 
 var (
 	TargetVersion string = "latest"
-	ServerType string = "vanilla"
+	ServerType string = ""
 	InstallPath string = "."
 	ExecutableName string = "minecraft"
 )
 
 func parseArgs(){
 	flag.StringVar(&TargetVersion, "version", TargetVersion,
-		"the version of the server need to be installed, default is the latest")
+		"the version of the server need to be installed, could be [latest latest-snapshot]")
 	flag.StringVar(&InstallPath, "output", InstallPath,
 		"the path need to be installed")
 	flag.StringVar(&ExecutableName, "name", ExecutableName,
@@ -56,9 +56,11 @@ func parseArgs(){
 		fmt.Fprintln(out, "        the modpack's local path or an URL. If it's an URL, installer will download the modpack first")
 	}
 	flag.Parse()
-	if flag.NArg() > 0 {
-		ServerType = flag.Arg(0)
+	if flag.NArg() == 0 {
+		flag.Usage()
+		os.Exit(0)
 	}
+	ServerType = flag.Arg(0)
 }
 
 func main(){
@@ -104,7 +106,8 @@ func main(){
 			installed, err = installer.VanillaIns.Install(InstallPath, ExecutableName, minecraft)
 		}else{
 			loger.Warnf("Modpack didn't contain any dependencies")
-			fmt.Println("\nServer executable file installed to:\nNULL")
+			fmt.Println("\nServer executable file installed to:")
+			fmt.Println("NULL")
 			return
 		}
 		if err != nil {

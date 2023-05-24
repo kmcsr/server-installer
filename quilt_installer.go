@@ -33,16 +33,18 @@ func (r *QuiltInstaller)Install(path, name string, target string)(installed stri
 func (r *QuiltInstaller)InstallWithLoader(path, name string, target string, loader string)(installed string, err error){
 	foundVersion := target
 	if target == "" || target == "latest" || target == "latest-snapshot" {
-		if target == "latest-snapshot" {
-			loger.Warn("forge do not support snapshot version")
-		}
 		var versions VanillaVersions
 		loger.Info("Getting minecraft version manifest...")
 		if versions, err = VanillaIns.GetVersions(); err != nil {
 			return
 		}
-		target = versions.Latest.Release
-		foundVersion += "(" + target + ")"
+		if target == "latest-snapshot" {
+			target = versions.Latest.Snapshot
+			foundVersion += "(" + target + ")"
+		}else{
+			target = versions.Latest.Release
+			foundVersion += "(" + target + ")"
+		}
 	}
 
 	if len(loader) == 0 {

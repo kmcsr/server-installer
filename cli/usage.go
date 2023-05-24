@@ -2,12 +2,12 @@
 package main
 
 const UsageText = `
-minecraft_installer [...flags] [<server_type>]
+minecraft_installer [...flags] <server_type>
 minecraft_installer [...flags] modpack <modpack_file>
 
 Example:
   Install servers:
-    minecraft_installer -name minecraft_server -version 1.7.10
+    minecraft_installer -name minecraft_server -version 1.7.10 vanilla
         Install minecraft 1.7.10 vanilla server into minecraft_server.jar
     minecraft_installer -name minecraft_server -version 1.19.2 forge
         Install minecraft 1.19.2 forge server into current directory and the executable is minecraft_server.sh
