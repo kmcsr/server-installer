@@ -17,7 +17,7 @@ Minecraft Server Installer
 This is a minecraft server online installer
 
 You can use this cli to easily install minecraft server.
-We also support fabric,forge,spigot
+We also support fabric,forge,spigot and some type of modpacks
 
 > Warn: For spigot server, you **must install suitable openjdk** (not only jre) and git.  
 >       See <https://www.spigotmc.org/wiki/buildtools/#prerequisites>
@@ -27,18 +27,23 @@ We also support fabric,forge,spigot
 ```
 Flags:
   -h, -help
-        show this help message
+        Show this help page
   -name string
         the executable name, without suffix such as '.sh' or '.jar' (default "minecraft")
   -output string
         the path need to be installed (default ".")
-  -server string
-        type of the server [fabric,forge,spigot,vanilla]  (default "vanilla")
   -version string
         the version of the server need to be installed, default is the latest (default "latest")
+Args:
+  <server_type> string
+        type of the server [fabric forge spigot vanilla] (default "vanilla" )
+  <modpack_file> filepath | URL
+        the modpack's local path or an URL. If it's an URL, installer will download the modpack first
 ```
 
 ## Examples
+
+### Install pure servers
 
 ```sh
 # Install minecraft 1.7.10 vanilla server into minecraft.jar
@@ -60,8 +65,25 @@ minecraft_installer -name minecraft_server -version 1.16.5 -server forge
 minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path server
 ```
 
+### Install modpacks
+
+```sh
+# Install the modpack from local to the current directory
+minecraft_installer -name modpack_server modpack /path/to/modrinch-modpack.mrpack
+# Hint: Only support modrinch modpack for now, curseforge is in progress
+```
+
+```sh
+# Install the modpack from internet to the current directory
+minecraft_installer -name modpack_server modpack 'https://cdn-raw.modrinth.com/data/sl6XzkCP/versions/i4agaPF2/Automation%20v3.3.mrpack'
+# Hint: if you want to install modpack from the internet,
+#       you must add the prefixs [https://, http://]
+```
+
 ## TODO
 
 - [ ] PaperMC
+- [ ] Quilt
+- [ ] Search modpacks from modrinth
 - [ ] List server versions
 - [ ] Configurable proxy
