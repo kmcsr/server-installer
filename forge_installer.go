@@ -118,6 +118,18 @@ func (r *ForgeInstaller)InstallWithLoader(path, name string, target string, load
 	return
 }
 
+func (r *ForgeInstaller)ListVersions(snapshot bool)(versions []string, err error){
+	data, err := r.GetInstallerVersions()
+	if err != nil {
+		return
+	}
+	for _, v := range data.Versioning.Versions {
+		i := strings.IndexByte(v, '-')
+		versions = append(versions, v[i + 1:])
+	}
+	return
+}
+
 func (r *ForgeInstaller)GetInstallerVersions()(data MavenMetadata, err error){
 	link, err := url.JoinPath(r.MavenUrl, "net/minecraftforge/forge")
 	if err != nil {

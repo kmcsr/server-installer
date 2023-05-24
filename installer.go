@@ -8,6 +8,7 @@ import (
 type Installer interface {
 	// target == "" means latest
 	Install(path, name string, target string)(installed string, err error)
+	ListVersions(snapshot bool)(versions []string, err error)
 }
 
 var Installers = make(map[string]Installer, 10)

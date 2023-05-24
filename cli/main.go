@@ -36,7 +36,7 @@ var (
 
 func parseArgs(){
 	flag.StringVar(&TargetVersion, "version", TargetVersion,
-		"the version of the server need to be installed, could be [latest latest-snapshot]")
+		"the version of the server need to be installed, could be [latest snapshot latest-snapshot]")
 	flag.StringVar(&InstallPath, "output", InstallPath,
 		"the path need to be installed")
 	flag.StringVar(&ExecutableName, "name", ExecutableName,
@@ -51,7 +51,7 @@ func parseArgs(){
 		flag.PrintDefaults()
 		fmt.Fprintln(out, "Args:")
 		fmt.Fprintln(out, "  <server_type> string")
-		fmt.Fprintf (out, "        type of the server %v (default %q )\n", installer.GetInstallerNames(), ServerType)
+		fmt.Fprintf (out, "        type of the server %v (default \"vanilla\" for `versions`)", installer.GetInstallerNames())
 		fmt.Fprintln(out, "  <modpack_file> filepath | URL")
 		fmt.Fprintln(out, "        the modpack's local path or an URL. If it's an URL, installer will download the modpack first")
 	}
@@ -116,6 +116,26 @@ func main(){
 		loger.Infof("installed: %s", installed)
 		fmt.Println("\nServer executable file installed to:")
 		fmt.Println(installed)
+	case "versions":
+		if flag.NArg() > 1 {
+			ServerType = flag.Arg(1)
+		}else{
+			ServerType = "vanilla"
+		}
+		snapshot := TargetVersion == "snapshot"
+		loger.Infof("Getting version list for %s server", ServerType)
+		ir, ok := installer.Get(ServerType)
+		if !ok {
+			loger.Fatalf("Could not found installer for server %q", ServerType)
+		}
+		versions, err := ir.ListVersions(snapshot)
+		if err != nil {
+			loger.Fatalf("Couldn't get versions: %v", err)
+		}
+		fmt.Println("Total versions count:", len(versions))
+		for _, v := range versions {
+			fmt.Println(v)
+		}
 	default:
 		loger.Infof("Getting version %q for %s server", TargetVersion, ServerType)
 		loger.Infof("Install into %q with name %q", InstallPath, ExecutableName)

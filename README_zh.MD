@@ -79,14 +79,24 @@ minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path 
 ### 安装整合包
 
 ```sh
-# Install the modpack from local to the current directory
-minecraft_installer -name modpack_server modpack /path/to/modrinch-modpack.mrpack
-# Hint: Only support modrinch modpack for now, curseforge is in progress
+# 从本地文件安装整合包
+minecraft_installer -name modpack_server modpack /path/to/modrinth-modpack.mrpack
+# 提示: 目前仅支持modrinth的整合包
 ```
 
 ```sh
-# Install the modpack from internet to the current directory
+# 从网络下载整合包并安装
 minecraft_installer -name modpack_server modpack 'https://cdn-raw.modrinth.com/data/sl6XzkCP/versions/i4agaPF2/Automation%20v3.3.mrpack'
-# Hint: if you want to install modpack from the internet,
-#       you must add the prefixs [https://, http://]
+# 提示: 如果想要从网络安装,
+#       则必须添加前缀 [https://, http://]
+```
+
+### 列出服务端可用版本
+
+```sh
+minecraft_installer versions
+```
+
+```sh
+minecraft_installer -version snapshot versions
 ```

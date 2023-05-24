@@ -36,13 +36,13 @@ func (*SpigotInstaller)Install(path, name string, target string)(installed strin
 
 	foundVersion := target
 	if target == "" || target == "latest" || target == "latest-snapshot" {
+		if target == "latest-snapshot" {
+			loger.Info("Warn: spigot do not support snapshot version")
+		}
 		var versions VanillaVersions
 		loger.Info("Getting minecraft version manifest...")
 		if versions, err = VanillaIns.GetVersions(); err != nil {
 			return
-		}
-		if target == "latest-snapshot" {
-			loger.Info("Warn: spigot do not support snapshot version")
 		}
 		target = versions.Latest.Release
 		foundVersion += "(" + target + ")"
@@ -75,5 +75,10 @@ func (*SpigotInstaller)Install(path, name string, target string)(installed strin
 	if err = renameIfNotExist(filepath.Join(buildDir, "spigot-" + target + ".jar"), installed); err != nil {
 		return
 	}
+	return
+}
+
+func (r *SpigotInstaller)ListVersions(snapshot bool)(versions []string, err error){
+	versions = []string{"latest"}
 	return
 }

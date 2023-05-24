@@ -84,8 +84,8 @@ minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path 
 
 ```sh
 # Install the modpack from local to the current directory
-minecraft_installer -name modpack_server modpack /path/to/modrinch-modpack.mrpack
-# Hint: Only support modrinch modpack for now, curseforge is in progress
+minecraft_installer -name modpack_server modpack /path/to/modrinth-modpack.mrpack
+# Hint: Only support modrinth modpack for now, curseforge is in progress
 ```
 
 ```sh
@@ -95,9 +95,18 @@ minecraft_installer -name modpack_server modpack 'https://cdn-raw.modrinth.com/d
 #       you must add the prefixs [https://, http://]
 ```
 
+### List server avaliable versions
+
+```sh
+minecraft_installer versions
+```
+
+```sh
+minecraft_installer -version snapshot versions
+```
+
 ## TODO
 
 - [ ] PaperMC
 - [ ] Search modpacks from modrinth
-- [ ] List server versions
 - [ ] Configurable proxy

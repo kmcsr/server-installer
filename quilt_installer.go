@@ -103,6 +103,17 @@ func (r *QuiltInstaller)InstallWithLoader(path, name string, target string, load
 	return
 }
 
+func (r *QuiltInstaller)ListVersions(snapshot bool)(versions []string, err error){
+	data, err := r.GetInstallerVersions()
+	if err != nil {
+		return
+	}
+	for _, v := range data.Versioning.Versions {
+		versions = append(versions, v)
+	}
+	return
+}
+
 func (r *QuiltInstaller)GetInstallerVersions()(data MavenMetadata, err error){
 	link, err := url.JoinPath(r.MavenUrl, "org/quiltmc/quilt-installer")
 	if err != nil {

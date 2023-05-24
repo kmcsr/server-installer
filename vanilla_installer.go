@@ -123,6 +123,19 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 	return "", &VersionNotFoundErr{ foundVersion }
 }
 
+func (r *VanillaInstaller)ListVersions(snapshot bool)(versions []string, err error){
+	vs, err := r.GetVersions()
+	if err != nil {
+		return
+	}
+	for _, v := range vs.Versions {
+		if v.Type == "release" || snapshot {
+			versions = append(versions, v.Id)
+		}
+	}
+	return
+}
+
 func (r *VanillaInstaller)GetVersions()(res VanillaVersions, err error){
 	if err = DefaultHTTPClient.GetJson(r.ManifestUrl, &res); err != nil {
 		return

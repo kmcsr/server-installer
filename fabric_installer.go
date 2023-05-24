@@ -66,6 +66,19 @@ func (r *FabricInstaller)InstallWithLoader(path, name string, target string, loa
 	return installed, nil
 }
 
+func (r *FabricInstaller)ListVersions(snapshot bool)(versions []string, err error){
+	vs, err := r.GetInstallers()
+	if err != nil {
+		return
+	}
+	for _, v := range vs {
+		if v.Stable || snapshot {
+			versions = append(versions, v.Version)
+		}
+	}
+	return
+}
+
 func (r *FabricInstaller)GetInstallers()(res []FabricInstallerVersion, err error){
 	tg, err := url.JoinPath(r.MetaUrl, "v2", "versions", "installer")
 	if err != nil {
