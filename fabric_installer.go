@@ -3,7 +3,6 @@ package installer
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"path/filepath"
 )
@@ -21,22 +20,27 @@ type (
 	}
 )
 
-var _ Installer = (*FabricInstaller)(nil)
+var DefaultFabricInstaller = &FabricInstaller{
+	MetaUrl: "https://meta.fabricmc.net",
+}
+var _ Installer = DefaultFabricInstaller
 
 func init(){
-	Installers["fabric"] = &FabricInstaller{
-		MetaUrl: "https://meta.fabricmc.net",
-	}
+	Installers["fabric"] = DefaultFabricInstaller
 }
 
 const fabricServerLauncherProfile = "fabric-server-launcher.properties"
-const fabricServerLauncherLink = "https://meta.fabricmc.net/v2/versions/loader/%s/stable/stable/server/jar"
+const fabricServerLauncherLink = "https://meta.fabricmc.net/v2/versions/loader/%s/%s/stable/server/jar"
 
 func (r *FabricInstaller)Install(path, name string, target string)(installed string, err error){
+	return r.InstallWithLoader(path, name, target, "")
+}
+
+func (r *FabricInstaller)InstallWithLoader(path, name string, target string, loader string)(installed string, err error){
 	foundVersion := target
 	if target == "" || target == "latest" || target == "latest-snapshot" {
 		var versions VanillaVersions
-		fmt.Println("Getting minecraft version manifest...")
+		loger.Info("Getting minecraft version manifest...")
 		if versions, err = VanillaIns.GetVersions(); err != nil {
 			return
 		}
@@ -48,17 +52,15 @@ func (r *FabricInstaller)Install(path, name string, target string)(installed str
 			foundVersion += "(" + target + ")"
 		}
 	}
-
-	serverLauncherUrl := fmt.Sprintf(fabricServerLauncherLink, target)
-	fmt.Printf("Getting fabric server launcher %s at %q...\n", foundVersion, serverLauncherUrl)
-	var resp *http.Response
-	if resp, err = http.DefaultClient.Get(serverLauncherUrl); err != nil {
-		return
+	if loader == "" {
+		loader = "stable"
 	}
-	defer resp.Body.Close()
-	fmt.Printf("Downloading %q...\n", serverLauncherUrl)
+
+	serverLauncherUrl := fmt.Sprintf(fabricServerLauncherLink, target, loader)
+	loger.Infof("Getting fabric server launcher %s at %q...", foundVersion, serverLauncherUrl)
 	installed = filepath.Join(path, name + ".jar")
-	if err = safeDownload(resp.Body, installed); err != nil {
+	if err = DefaultHTTPClient.Download(serverLauncherUrl, installed, 0644, nil, -1,
+		downloadingCallback(serverLauncherUrl)); err != nil {
 		return
 	}
 	return installed, nil
@@ -69,7 +71,7 @@ func (r *FabricInstaller)GetInstallers()(res []FabricInstallerVersion, err error
 	if err != nil {
 		return
 	}
-	if err = getHttpJson(tg, &res); err != nil {
+	if err = DefaultHTTPClient.GetJson(tg, &res); err != nil {
 		return
 	}
 	return

@@ -3,8 +3,6 @@ package installer
 
 import (
 	"encoding/xml"
-	"io"
-	"net/http"
 	"net/url"
 )
 
@@ -34,14 +32,8 @@ func GetMavenMetadata(link string)(data MavenMetadata, err error){
 	if link, err = url.JoinPath(link, "maven-metadata.xml"); err != nil {
 		return
 	}
-	var res *http.Response
-	if res, err = http.DefaultClient.Get(link); err != nil {
+	if err = DefaultHTTPClient.GetXml(link, &data); err != nil {
 		return
 	}
-	defer res.Body.Close()
-	var body []byte
-	if body, err = io.ReadAll(res.Body); err != nil {
-		return
-	}
-	return DecodeMavenMetadata(body)
+	return
 }

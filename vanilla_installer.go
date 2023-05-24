@@ -2,8 +2,6 @@
 package installer
 
 import (
-	"fmt"
-	"net/http"
 	"path/filepath"
 	"time"
 )
@@ -91,7 +89,7 @@ func init(){
 
 func (r *VanillaInstaller)Install(path, name string, target string)(installed string, err error){
 	var res VanillaVersions
-	fmt.Println("Getting minecraft version manifest...")
+	loger.Info("Getting minecraft version manifest...")
 	if res, err = r.GetVersions(); err != nil {
 		return
 	}
@@ -106,7 +104,7 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 	for _, v := range res.Versions {
 		if v.Id == target {
 			var version VanillaVersion
-			fmt.Printf("Getting minecraft version %q...\n", v.Url)
+			loger.Infof("Getting minecraft version %q...", v.Url)
 			if version, err = r.GetVersion(v.Url); err != nil {
 				return
 			}
@@ -114,14 +112,9 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 			if !ok {
 				return "", &AssetNotFoundErr{ foundVersion, "server.jar" }
 			}
-			var resp *http.Response
-			if resp, err = http.DefaultClient.Get(info.Url); err != nil {
-				return
-			}
-			defer resp.Body.Close()
-			fmt.Printf("Downloading %q...\n", info.Url)
 			installed = filepath.Join(path, name + ".jar")
-			if err = safeDownload(resp.Body, installed); err != nil {
+			if err = DefaultHTTPClient.Download(info.Url, installed, 0644, nil, -1,
+				downloadingCallback(info.Url)); err != nil {
 				return
 			}
 			return installed, nil
@@ -131,14 +124,14 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 }
 
 func (r *VanillaInstaller)GetVersions()(res VanillaVersions, err error){
-	if err = getHttpJson(r.ManifestUrl, &res); err != nil {
+	if err = DefaultHTTPClient.GetJson(r.ManifestUrl, &res); err != nil {
 		return
 	}
 	return
 }
 
 func (r *VanillaInstaller)GetVersion(url string)(res VanillaVersion, err error){
-	if err = getHttpJson(url, &res); err != nil {
+	if err = DefaultHTTPClient.GetJson(url, &res); err != nil {
 		return
 	}
 	return

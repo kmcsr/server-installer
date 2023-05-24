@@ -1,6 +1,10 @@
 
 package installer
 
+import (
+	"sort"
+)
+
 type Installer interface {
 	// target == "" means latest
 	Install(path, name string, target string)(installed string, err error)
@@ -18,6 +22,7 @@ func GetInstallerNames()(installers []string){
 	for name, _ := range Installers {
 		installers = append(installers, name)
 	}
+	sort.Strings(installers)
 	return
 }
 

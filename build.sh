@@ -8,12 +8,17 @@ echo
 
 export CGO_ENABLED=0 # cross-compile without cgo
 
+pkg_path=$(go list -m)
+tag=$(git describe --tags --match v[0-9]* --abbrev=0 2>/dev/null || git log -1 --format="dev-%H")
+echo "Tag version: ${tag}"
+
 function _build(){
 	f="minecraft_installer-${GOOS}-${GOARCH}"
 	[ "$GOOS" == 'windows' ] && f="${f}.exe"
 	echo "==> Building '$f'..."
-	go build\
-	 -trimpath -gcflags "-trimpath=${GOPATH}" -asmflags "-trimpath=${GOPATH}" -ldflags "-w -s"\
+	go build \
+	 -trimpath -gcflags "-trimpath=${GOPATH}" -asmflags "-trimpath=${GOPATH}" \
+	 -ldflags "-w -s -X '${pkg_path}.PkgVersion=${tag}'" \
 	 -o "./output/$f" "./cli"
 	return $?
 }

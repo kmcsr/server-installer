@@ -3,9 +3,6 @@ package installer
 
 import (
 	"context"
-	"fmt"
-	"io"
-	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
@@ -20,12 +17,13 @@ type (
 	}
 )
 
-var _ Installer = (*ForgeInstaller)(nil)
+var DefaultForgeInstaller = &ForgeInstaller{
+	MavenUrl: "https://maven.minecraftforge.net",
+}
+var _ Installer = DefaultForgeInstaller
 
 func init(){
-	Installers["forge"] = &ForgeInstaller{
-		MavenUrl: "https://maven.minecraftforge.net",
-	}
+	Installers["forge"] = DefaultForgeInstaller
 }
 
 var v1_17 = Version{
@@ -35,15 +33,19 @@ var v1_17 = Version{
 }
 
 func (r *ForgeInstaller)Install(path, name string, target string)(installed string, err error){
+	return r.InstallWithLoader(path, name, target, "")
+}
+
+func (r *ForgeInstaller)InstallWithLoader(path, name string, target string, loader string)(installed string, err error){
 	foundVersion := target
 	if target == "" || target == "latest" || target == "latest-snapshot" {
+		if target == "latest-snapshot" {
+			loger.Warn("forge do not support snapshot version")
+		}
 		var versions VanillaVersions
-		fmt.Println("Getting minecraft version manifest...")
+		loger.Info("Getting minecraft version manifest...")
 		if versions, err = VanillaIns.GetVersions(); err != nil {
 			return
-		}
-		if target == "latest-snapshot" {
-			fmt.Println("Warn: forge do not support snapshot version")
 		}
 		target = versions.Latest.Release
 		foundVersion += "(" + target + ")"
@@ -58,35 +60,24 @@ func (r *ForgeInstaller)Install(path, name string, target string)(installed stri
 		lessV1_17 = v.Less(v1_17)
 	}
 
-	version, err := r.GetLatestInstaller(target)
-	if err != nil {
-		return
+	var version string
+	if len(loader) == 0 {
+		version, err = r.GetLatestInstaller(target)
+		if err != nil {
+			return
+		}
+	}else{
+		version = target + "-" + loader
 	}
 	forgeInstallerUrl, err := url.JoinPath(r.MavenUrl, "net/minecraftforge/forge", version, "forge-" + version + "-installer.jar")
 	if err != nil {
 		return
 	}
-	fmt.Printf("Getting forge server installer %s at %q...\n", foundVersion, forgeInstallerUrl)
-	var resp *http.Response
-	if resp, err = http.DefaultClient.Get(forgeInstallerUrl); err != nil {
+	loger.Infof("Getting forge server installer %s at %q...", foundVersion, forgeInstallerUrl)
+	var installerJar string
+	if installerJar, err = DefaultHTTPClient.DownloadTmp(forgeInstallerUrl, "forge-installer-*.jar", 0644, nil, -1,
+		downloadingCallback(forgeInstallerUrl)); err != nil {
 		return
-	}
-	defer resp.Body.Close()
-	var installerName string
-	{
-		fmt.Printf("Downloading %q...\n", forgeInstallerUrl)
-		var fd *os.File
-		if fd, err = os.CreateTemp("", "forge-installer.*.jar"); err != nil {
-			return
-		}
-		installerName = fd.Name()
-		defer os.Remove(installerName)
-		_, err = io.Copy(fd, resp.Body)
-		fd.Close()
-		resp.Body.Close()
-		if err != nil {
-			return
-		}
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -95,11 +86,11 @@ func (r *ForgeInstaller)Install(path, name string, target string)(installed stri
 	if err != nil {
 		return
 	}
-	cmd := exec.CommandContext(ctx, javapath, "-jar", installerName, "--installServer")
+	cmd := exec.CommandContext(ctx, javapath, "-jar", installerJar, "--installServer")
 	cmd.Dir = path
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
-	fmt.Printf("Running %q...\n", cmd.String())
+	loger.Infof("Running %q...", cmd.String())
 	if err = cmd.Run(); err != nil {
 		return
 	}
