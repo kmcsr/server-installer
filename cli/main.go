@@ -99,13 +99,11 @@ func main(){
 		}else if fabric, ok := pack.Deps["fabric-loader"]; ok {
 			installed, err = installer.DefaultFabricInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, fabric)
 		}else if quilt, ok := pack.Deps["quilt-loader"]; ok {
-			loger.Fatalf("Quilt is not supported yet")
-			_ = quilt
-			// installed, err = installer.DefaultQuiltInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, quilt)
+			installed, err = installer.DefaultQuiltInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, quilt)
 		}else if mok {
 			installed, err = installer.VanillaIns.Install(InstallPath, ExecutableName, minecraft)
 		}else{
-			loger.Warnf("Mod pack didn't contain any dependencies")
+			loger.Warnf("Modpack didn't contain any dependencies")
 			fmt.Println("\nServer executable file installed to:\nNULL")
 			return
 		}

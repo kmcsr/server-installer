@@ -83,7 +83,6 @@ minecraft_installer -name modpack_server modpack 'https://cdn-raw.modrinth.com/d
 ## TODO
 
 - [ ] PaperMC
-- [ ] Quilt
 - [ ] Search modpacks from modrinth
 - [ ] List server versions
 - [ ] Configurable proxy
