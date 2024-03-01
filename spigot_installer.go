@@ -47,11 +47,7 @@ func (*SpigotInstaller) Install(path, name string, target string) (installed str
 		foundVersion += "(" + target + ")"
 	}
 
-	buildDir, err := os.MkdirTemp("", "spigot-build-")
-	if err != nil {
-		return
-	}
-	defer os.RemoveAll(buildDir)
+	buildDir := filepath.Join(os.TempDir(), "server-installer-" + PkgVersion + ".bukkit-build-tools.tmp")
 	loger.Infof("Getting %q...", SpigotBuildToolsURI)
 	buildToolJar := filepath.Join(buildDir, "BuildTools.jar")
 	if err = DefaultHTTPClient.Download(SpigotBuildToolsURI, buildToolJar, 0644, nil, -1,
@@ -66,7 +62,7 @@ func (*SpigotInstaller) Install(path, name string, target string) (installed str
 	cmd.Stderr = os.Stdout
 	loger.Infof("Running %q...", cmd.String())
 	if err = cmd.Run(); err != nil {
-		loger.Infof("Build failed. Build log moved to BuildTools.log (if exists)")
+		loger.Infof("Build failed. Build log (if exists) moved to BuildTools.log")
 		os.Rename(filepath.Join(buildDir, "BuildTools.log.txt"), "BuildTools.log")
 		return
 	}

@@ -97,7 +97,6 @@ func checkHashStream(r io.Reader, hashes StringMap, w io.Writer) (n int64, err e
 		fmt.Printf("err is not nil: %T", err)
 		return
 	}
-	return
 	for i, h := range hashers {
 		sum := hex.EncodeToString(h.Sum(nil))
 		if expect := expects[i]; expect[1] != sum {
@@ -155,9 +154,9 @@ func formatSize(bytes int64, format string) string {
 		if b <= 1000 {
 			break
 		}
-		b /= 1000
+		b /= 1024
 	}
-	return fmt.Sprintf(format+"%s", b, unit)
+	return fmt.Sprintf(format, b) + unit
 }
 
 type DlCallback = func(n int64, size int64)

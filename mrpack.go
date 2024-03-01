@@ -45,7 +45,7 @@ type (
 		FormatVersion int    `json:"formatVersion"`
 		Game          string `json:"game"`
 
-		VersionId string `json:"versionId`
+		VersionId string `json:"versionId"`
 		Name      string `json:"name"`
 		Summary   string `json:"summary,optional"`
 
