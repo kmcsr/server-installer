@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -15,13 +14,13 @@ type (
 
 var _ Installer = (*SpigotInstaller)(nil)
 
-func init(){
+func init() {
 	Installers["spigot"] = &SpigotInstaller{}
 }
 
 const SpigotBuildToolsURI = "https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar"
 
-func (*SpigotInstaller)Install(path, name string, target string)(installed string, err error){
+func (*SpigotInstaller) Install(path, name string, target string) (installed string, err error) {
 	if _, err = exec.LookPath("git"); err != nil {
 		return
 	}
@@ -71,14 +70,14 @@ func (*SpigotInstaller)Install(path, name string, target string)(installed strin
 		os.Rename(filepath.Join(buildDir, "BuildTools.log.txt"), "BuildTools.log")
 		return
 	}
-	installed = filepath.Join(path, name + ".jar")
-	if err = renameIfNotExist(filepath.Join(buildDir, "spigot-" + target + ".jar"), installed); err != nil {
+	installed = filepath.Join(path, name+".jar")
+	if err = renameIfNotExist(filepath.Join(buildDir, "spigot-"+target+".jar"), installed); err != nil {
 		return
 	}
 	return
 }
 
-func (r *SpigotInstaller)ListVersions(snapshot bool)(versions []string, err error){
+func (r *SpigotInstaller) ListVersions(snapshot bool) (versions []string, err error) {
 	versions = []string{"latest"}
 	return
 }

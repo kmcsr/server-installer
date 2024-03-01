@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -21,14 +20,14 @@ type (
 	}
 )
 
-func DecodeMavenMetadata(body []byte)(data MavenMetadata, err error){
+func DecodeMavenMetadata(body []byte) (data MavenMetadata, err error) {
 	if err = xml.Unmarshal(body, &data); err != nil {
 		return
 	}
 	return
 }
 
-func GetMavenMetadata(link string)(data MavenMetadata, err error){
+func GetMavenMetadata(link string) (data MavenMetadata, err error) {
 	if link, err = url.JoinPath(link, "maven-metadata.xml"); err != nil {
 		return
 	}

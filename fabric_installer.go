@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -25,18 +24,18 @@ var DefaultFabricInstaller = &FabricInstaller{
 }
 var _ Installer = DefaultFabricInstaller
 
-func init(){
+func init() {
 	Installers["fabric"] = DefaultFabricInstaller
 }
 
 const fabricServerLauncherProfile = "fabric-server-launcher.properties"
 const fabricServerLauncherLink = "https://meta.fabricmc.net/v2/versions/loader/%s/%s/stable/server/jar"
 
-func (r *FabricInstaller)Install(path, name string, target string)(installed string, err error){
+func (r *FabricInstaller) Install(path, name string, target string) (installed string, err error) {
 	return r.InstallWithLoader(path, name, target, "")
 }
 
-func (r *FabricInstaller)InstallWithLoader(path, name string, target string, loader string)(installed string, err error){
+func (r *FabricInstaller) InstallWithLoader(path, name string, target string, loader string) (installed string, err error) {
 	foundVersion := target
 	if target == "" || target == "latest" || target == "latest-snapshot" {
 		var versions VanillaVersions
@@ -47,7 +46,7 @@ func (r *FabricInstaller)InstallWithLoader(path, name string, target string, loa
 		if target == "latest-snapshot" {
 			target = versions.Latest.Snapshot
 			foundVersion += "(" + target + ")"
-		}else{
+		} else {
 			target = versions.Latest.Release
 			foundVersion += "(" + target + ")"
 		}
@@ -58,7 +57,7 @@ func (r *FabricInstaller)InstallWithLoader(path, name string, target string, loa
 
 	serverLauncherUrl := fmt.Sprintf(fabricServerLauncherLink, target, loader)
 	loger.Infof("Getting fabric server launcher %s at %q...", foundVersion, serverLauncherUrl)
-	installed = filepath.Join(path, name + ".jar")
+	installed = filepath.Join(path, name+".jar")
 	if err = DefaultHTTPClient.Download(serverLauncherUrl, installed, 0644, nil, -1,
 		downloadingCallback(serverLauncherUrl)); err != nil {
 		return
@@ -66,7 +65,7 @@ func (r *FabricInstaller)InstallWithLoader(path, name string, target string, loa
 	return installed, nil
 }
 
-func (r *FabricInstaller)ListVersions(snapshot bool)(versions []string, err error){
+func (r *FabricInstaller) ListVersions(snapshot bool) (versions []string, err error) {
 	vs, err := r.GetInstallers()
 	if err != nil {
 		return
@@ -79,7 +78,7 @@ func (r *FabricInstaller)ListVersions(snapshot bool)(versions []string, err erro
 	return
 }
 
-func (r *FabricInstaller)GetInstallers()(res []FabricInstallerVersion, err error){
+func (r *FabricInstaller) GetInstallers() (res []FabricInstallerVersion, err error) {
 	tg, err := url.JoinPath(r.MetaUrl, "v2", "versions", "installer")
 	if err != nil {
 		return

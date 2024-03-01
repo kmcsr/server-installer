@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -8,11 +7,11 @@ import (
 
 var loger logger.Logger = initLogger()
 
-func initLogger()(loger logger.Logger){
+func initLogger() (loger logger.Logger) {
 	loger = logrus.Logger
 	return
 }
 
-func SetLogger(newLoger logger.Logger){
+func SetLogger(newLoger logger.Logger) {
 	loger = newLoger
 }

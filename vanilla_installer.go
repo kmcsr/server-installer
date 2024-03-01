@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -8,9 +7,9 @@ import (
 
 type (
 	DownloadInfo struct {
-		Sha1      string `json:"sha1"`
-		Size      int64  `json:"size"`
-		Url       string `json:"url"`
+		Sha1 string `json:"sha1"`
+		Size int64  `json:"size"`
+		Url  string `json:"url"`
 	}
 	AssetIndex struct {
 		DownloadInfo
@@ -23,7 +22,7 @@ type (
 	}
 	LibraryDownloadInfo struct {
 		DownloadInfo
-		Path string  `json:"path"`
+		Path string `json:"path"`
 	}
 	LibraryDownloads struct {
 		Artifact    *LibraryDownloadInfo           `json:"artifact,omitempty"`
@@ -83,11 +82,11 @@ var VanillaIns = &VanillaInstaller{
 	ManifestUrl: "https://launchermeta.mojang.com/mc/game/version_manifest.json",
 }
 
-func init(){
+func init() {
 	Installers["vanilla"] = VanillaIns
 }
 
-func (r *VanillaInstaller)Install(path, name string, target string)(installed string, err error){
+func (r *VanillaInstaller) Install(path, name string, target string) (installed string, err error) {
 	var res VanillaVersions
 	loger.Info("Getting minecraft version manifest...")
 	if res, err = r.GetVersions(); err != nil {
@@ -97,7 +96,7 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 	if target == "" || target == "latest" {
 		target = res.Latest.Release
 		foundVersion += "(" + target + ")"
-	}else if target == "latest-snapshot" {
+	} else if target == "latest-snapshot" {
 		target = res.Latest.Snapshot
 		foundVersion += "(" + target + ")"
 	}
@@ -110,9 +109,9 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 			}
 			info, ok := version.Downloads["server"]
 			if !ok {
-				return "", &AssetNotFoundErr{ foundVersion, "server.jar" }
+				return "", &AssetNotFoundErr{foundVersion, "server.jar"}
 			}
-			installed = filepath.Join(path, name + ".jar")
+			installed = filepath.Join(path, name+".jar")
 			if err = DefaultHTTPClient.Download(info.Url, installed, 0644, nil, -1,
 				downloadingCallback(info.Url)); err != nil {
 				return
@@ -120,10 +119,10 @@ func (r *VanillaInstaller)Install(path, name string, target string)(installed st
 			return installed, nil
 		}
 	}
-	return "", &VersionNotFoundErr{ foundVersion }
+	return "", &VersionNotFoundErr{foundVersion}
 }
 
-func (r *VanillaInstaller)ListVersions(snapshot bool)(versions []string, err error){
+func (r *VanillaInstaller) ListVersions(snapshot bool) (versions []string, err error) {
 	vs, err := r.GetVersions()
 	if err != nil {
 		return
@@ -136,14 +135,14 @@ func (r *VanillaInstaller)ListVersions(snapshot bool)(versions []string, err err
 	return
 }
 
-func (r *VanillaInstaller)GetVersions()(res VanillaVersions, err error){
+func (r *VanillaInstaller) GetVersions() (res VanillaVersions, err error) {
 	if err = DefaultHTTPClient.GetJson(r.ManifestUrl, &res); err != nil {
 		return
 	}
 	return
 }
 
-func (r *VanillaInstaller)GetVersion(url string)(res VanillaVersion, err error){
+func (r *VanillaInstaller) GetVersion(url string) (res VanillaVersion, err error) {
 	if err = DefaultHTTPClient.GetJson(url, &res); err != nil {
 		return
 	}

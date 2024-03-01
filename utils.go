@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -22,14 +21,14 @@ var EmptyLinkArrayErr = errors.New("Link array is empty")
 
 type StringMap = map[string]string
 
-func renameIfNotExist(src, dst string)(err error){
+func renameIfNotExist(src, dst string) (err error) {
 	if _, e := os.Stat(dst); os.IsNotExist(e) {
 		if err = os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 			return
 		}
-	}else{
+	} else {
 		return &os.LinkError{
-			Op: "rename",
+			Op:  "rename",
 			Old: src,
 			New: dst,
 			Err: TargetAlreadyExistErr,
@@ -41,9 +40,9 @@ func renameIfNotExist(src, dst string)(err error){
 	return
 }
 
-func safeDownload(reader io.Reader, path string)(err error){
+func safeDownload(reader io.Reader, path string) (err error) {
 	var fd *os.File
-	if fd, err = os.OpenFile(path + ".downloading", os.O_RDWR | os.O_CREATE | os.O_TRUNC, 0644); err != nil {
+	if fd, err = os.OpenFile(path+".downloading", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644); err != nil {
 		return
 	}
 	defer os.Remove(fd.Name())
@@ -58,7 +57,7 @@ func safeDownload(reader io.Reader, path string)(err error){
 	return nil
 }
 
-func lookJavaPath()(string, error){
+func lookJavaPath() (string, error) {
 	javahome := os.Getenv("JAVA_HOME")
 	if len(javahome) > 0 {
 		if path, err := exec.LookPath(filepath.Join(javahome, "bin", "java")); err == nil {
@@ -68,8 +67,7 @@ func lookJavaPath()(string, error){
 	return exec.LookPath("java")
 }
 
-
-var hashesNewer = map[string]func()(hash.Hash){
+var hashesNewer = map[string]func() hash.Hash{
 	"md5":    md5.New,
 	"sha1":   sha1.New,
 	"sha224": sha256.New224,
@@ -78,7 +76,7 @@ var hashesNewer = map[string]func()(hash.Hash){
 	"sha512": sha512.New,
 }
 
-func checkHashStream(r io.Reader, hashes StringMap, w io.Writer)(n int64, err error){
+func checkHashStream(r io.Reader, hashes StringMap, w io.Writer) (n int64, err error) {
 	hashers := make([]hash.Hash, 0, len(hashes))
 	expects := make([][2]string, 0, len(hashes))
 	for h, sum := range hashes {
@@ -88,7 +86,7 @@ func checkHashStream(r io.Reader, hashes StringMap, w io.Writer)(n int64, err er
 			expects = append(expects, [2]string{h, sum})
 		}
 	}
-	writers := make([]io.Writer, len(hashers), len(hashers) + 1)
+	writers := make([]io.Writer, len(hashers), len(hashers)+1)
 	for i, h := range hashers {
 		writers[i] = h
 	}
@@ -104,8 +102,8 @@ func checkHashStream(r io.Reader, hashes StringMap, w io.Writer)(n int64, err er
 		sum := hex.EncodeToString(h.Sum(nil))
 		if expect := expects[i]; expect[1] != sum {
 			err = &HashErr{
-				Hash: expect[0],
-				Sum: sum,
+				Hash:   expect[0],
+				Sum:    sum,
 				Expect: expect[1],
 			}
 			return
@@ -114,7 +112,7 @@ func checkHashStream(r io.Reader, hashes StringMap, w io.Writer)(n int64, err er
 	return
 }
 
-func matchHashes(path string, hashes StringMap)(ok bool){
+func matchHashes(path string, hashes StringMap) (ok bool) {
 	fd, err := os.Open(path)
 	if err != nil {
 		return false
@@ -124,7 +122,7 @@ func matchHashes(path string, hashes StringMap)(ok bool){
 	return err == nil
 }
 
-func downloadAnyAndCheckHashes(links []string, path string, hashes StringMap, size int64)(err error){
+func downloadAnyAndCheckHashes(links []string, path string, hashes StringMap, size int64) (err error) {
 	if matchHashes(path, hashes) {
 		return
 	}
@@ -149,7 +147,7 @@ func downloadAnyAndCheckHashes(links []string, path string, hashes StringMap, si
 
 var sizeUnits = []string{"B", "KB", "MB", "GB", "TB", "PB"}
 
-func formatSize(bytes int64, format string)(string){
+func formatSize(bytes int64, format string) string {
 	b := (float32)(bytes)
 	var unit string
 	for _, u := range sizeUnits {
@@ -159,15 +157,15 @@ func formatSize(bytes int64, format string)(string){
 		}
 		b /= 1000
 	}
-	return fmt.Sprintf(format + "%s", b, unit)
+	return fmt.Sprintf(format+"%s", b, unit)
 }
 
 type DlCallback = func(n int64, size int64)
 
-func downloadingCallback(url string)(DlCallback){
+func downloadingCallback(url string) DlCallback {
 	var last time.Time
 	var start time.Time
-	return func(n int64, size int64){
+	return func(n int64, size int64) {
 		if n == 0 {
 			start = time.Now()
 			last = start
@@ -180,7 +178,7 @@ func downloadingCallback(url string)(DlCallback){
 		}
 		if time.Since(last) > time.Second {
 			last = time.Now()
-			loger.Infof("Downloading %q [%s/%s %.2f%%]\n", url, formatSize(n, "%.2f"), formatSize(size, "%.2f"), (float32)(n) / (float32)(size) * 100)
+			loger.Infof("Downloading %q [%s/%s %.2f%%]\n", url, formatSize(n, "%.2f"), formatSize(size, "%.2f"), (float32)(n)/(float32)(size)*100)
 		}
 	}
 }

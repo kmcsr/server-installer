@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -14,6 +13,7 @@ import (
 )
 
 const currentMrpackVersion = 1
+
 var supportVersions = []int{currentMrpackVersion}
 
 const (
@@ -23,11 +23,11 @@ const (
 )
 
 type MrpackVerisonErr struct {
-	Version int
+	Version  int
 	Supports []int
 }
 
-func (e *MrpackVerisonErr)Error()(string){
+func (e *MrpackVerisonErr) Error() string {
 	return fmt.Sprintf("Unsupport mrpack format version %d, supports %v", e.Version, e.Supports)
 }
 
@@ -61,7 +61,7 @@ type (
 	}
 )
 
-func OpenMrpack(filename string)(pack *Mrpack, err error){
+func OpenMrpack(filename string) (pack *Mrpack, err error) {
 	pack = new(Mrpack)
 	pack.r, err = zip.OpenReader(filename)
 	if err != nil {
@@ -73,20 +73,20 @@ func OpenMrpack(filename string)(pack *Mrpack, err error){
 	for _, f := range pack.r.File {
 		if strings.HasPrefix(f.Name, "overrides/") {
 			pack.overrides = append(pack.overrides, f)
-		}else if strings.HasPrefix(f.Name, "client-overrides/") {
+		} else if strings.HasPrefix(f.Name, "client-overrides/") {
 			pack.clientOverrides = append(pack.clientOverrides, f)
-		}else if strings.HasPrefix(f.Name, "server-overrides/") {
+		} else if strings.HasPrefix(f.Name, "server-overrides/") {
 			pack.serverOverrides = append(pack.serverOverrides, f)
 		}
 	}
 	return
 }
 
-func (p *Mrpack)Close()(err error){
+func (p *Mrpack) Close() (err error) {
 	return p.r.Close()
 }
 
-func (p *Mrpack)decodeIndex()(err error){
+func (p *Mrpack) decodeIndex() (err error) {
 	var indexFd fs.File
 	indexFd, err = p.r.Open("modrinth.index.json")
 	if err != nil {
@@ -98,20 +98,20 @@ func (p *Mrpack)decodeIndex()(err error){
 	}
 	if p.FormatVersion != currentMrpackVersion {
 		return &MrpackVerisonErr{
-			Version: p.FormatVersion,
+			Version:  p.FormatVersion,
 			Supports: supportVersions,
 		}
 	}
 	return
 }
 
-type MrpackOptionalChecker func(f MrpackFileMeta)(bool)
+type MrpackOptionalChecker func(f MrpackFileMeta) bool
 
-func (p *Mrpack)InstallClient(target string)(err error){
-	return p.InstallClientWithOptional(target, func(f MrpackFileMeta)(bool){ return true })
+func (p *Mrpack) InstallClient(target string) (err error) {
+	return p.InstallClientWithOptional(target, func(f MrpackFileMeta) bool { return true })
 }
 
-func (p *Mrpack)installWithEnv(env string, target string, optionalChecker MrpackOptionalChecker)(err error){
+func (p *Mrpack) installWithEnv(env string, target string, optionalChecker MrpackOptionalChecker) (err error) {
 	loger.Infof("Installing [%s]modpack %s(%s) to %q ...", p.Game, p.Name, p.VersionId, target)
 	if len(p.Summary) > 0 {
 		loger.Infof("  Summary: %s", p.Summary)
@@ -137,7 +137,7 @@ func (p *Mrpack)installWithEnv(env string, target string, optionalChecker Mrpack
 			}
 		}
 		wg.Add(1)
-		go func(f MrpackFileMeta){
+		go func(f MrpackFileMeta) {
 			defer wg.Done()
 			if !filepath.IsLocal(f.Path) {
 				err = &NotLocalPathErr{f.Path}
@@ -146,7 +146,8 @@ func (p *Mrpack)installWithEnv(env string, target string, optionalChecker Mrpack
 			if err = downloadAnyAndCheckHashes(f.Downloads, filepath.Join(target, f.Path), f.Hashes, f.Size); err != nil {
 				goto checkErr
 			}
-			checkErr: if err != nil {
+		checkErr:
+			if err != nil {
 				if required {
 					return
 				}
@@ -159,43 +160,43 @@ func (p *Mrpack)installWithEnv(env string, target string, optionalChecker Mrpack
 	return
 }
 
-func (p *Mrpack)InstallClientWithOptional(target string, optionalChecker MrpackOptionalChecker)(err error){
+func (p *Mrpack) InstallClientWithOptional(target string, optionalChecker MrpackOptionalChecker) (err error) {
 	if err = p.installWithEnv("client", target, optionalChecker); err != nil {
 		return
 	}
 	return p.OverrideClient(target)
 }
 
-func (p *Mrpack)InstallServer(target string)(err error){
-	return p.InstallServerWithOptional(target, func(f MrpackFileMeta)(bool){ return true })
+func (p *Mrpack) InstallServer(target string) (err error) {
+	return p.InstallServerWithOptional(target, func(f MrpackFileMeta) bool { return true })
 }
 
-func (p *Mrpack)InstallServerWithOptional(target string, optionalChecker MrpackOptionalChecker)(err error){
+func (p *Mrpack) InstallServerWithOptional(target string, optionalChecker MrpackOptionalChecker) (err error) {
 	if err = p.installWithEnv("server", target, optionalChecker); err != nil {
 		return
 	}
 	return p.OverrideServer(target)
 }
 
-func trimLeftDir(path string)(string){
+func trimLeftDir(path string) string {
 	i := strings.IndexByte(path, '/')
 	if i < 0 {
 		return ""
 	}
-	return path[i + 1:]
+	return path[i+1:]
 }
 
-func (p *Mrpack)override(target string, f *zip.File)(err error){
+func (p *Mrpack) override(target string, f *zip.File) (err error) {
 	name := trimLeftDir(f.Name)
 	if len(name) == 0 {
 		return
 	}
 	path := filepath.Join(target, name)
 	if f.FileInfo().IsDir() {
-		return os.MkdirAll(path, f.Mode() | 0111)
+		return os.MkdirAll(path, f.Mode()|0111)
 	}
 	var (
-		r io.ReadCloser
+		r  io.ReadCloser
 		fd *os.File
 	)
 	if r, err = f.Open(); err != nil {
@@ -206,7 +207,7 @@ func (p *Mrpack)override(target string, f *zip.File)(err error){
 		return
 	}
 	if fd, err = os.OpenFile(path,
-		os.O_RDWR | os.O_CREATE | os.O_TRUNC, f.Mode()); err != nil {
+		os.O_RDWR|os.O_CREATE|os.O_TRUNC, f.Mode()); err != nil {
 		return
 	}
 	if _, err = io.Copy(fd, r); err != nil {
@@ -215,7 +216,7 @@ func (p *Mrpack)override(target string, f *zip.File)(err error){
 	return
 }
 
-func (p *Mrpack)overrideGlobal(target string)(err error){
+func (p *Mrpack) overrideGlobal(target string) (err error) {
 	for _, f := range p.overrides {
 		if err = p.override(target, f); err != nil {
 			return
@@ -224,7 +225,7 @@ func (p *Mrpack)overrideGlobal(target string)(err error){
 	return
 }
 
-func (p *Mrpack)OverrideClient(target string)(err error){
+func (p *Mrpack) OverrideClient(target string) (err error) {
 	if err = p.overrideGlobal(target); err != nil {
 		return
 	}
@@ -236,7 +237,7 @@ func (p *Mrpack)OverrideClient(target string)(err error){
 	return
 }
 
-func (p *Mrpack)OverrideServer(target string)(err error){
+func (p *Mrpack) OverrideServer(target string) (err error) {
 	if err = p.overrideGlobal(target); err != nil {
 		return
 	}

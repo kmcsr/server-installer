@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -26,7 +25,7 @@ var DefaultHTTPClient = &HTTPClient{
 	UserAgent: "github.com/kmcsr/server-installer/" + PkgVersion,
 }
 
-func (c *HTTPClient)NewRequest(method string, url string, body io.Reader)(req *http.Request, err error){
+func (c *HTTPClient) NewRequest(method string, url string, body io.Reader) (req *http.Request, err error) {
 	if req, err = http.NewRequest("GET", url, nil); err != nil {
 		return
 	}
@@ -34,7 +33,7 @@ func (c *HTTPClient)NewRequest(method string, url string, body io.Reader)(req *h
 	return
 }
 
-func (c *HTTPClient)Do(req *http.Request)(res *http.Response, err error){
+func (c *HTTPClient) Do(req *http.Request) (res *http.Response, err error) {
 	if _, ok := req.Header["User-Agent"]; !ok {
 		req.Header.Set("User-Agent", c.UserAgent)
 	}
@@ -44,7 +43,7 @@ func (c *HTTPClient)Do(req *http.Request)(res *http.Response, err error){
 	return
 }
 
-func (c *HTTPClient)Get(url string)(res *http.Response, err error){
+func (c *HTTPClient) Get(url string) (res *http.Response, err error) {
 	var req *http.Request
 	if req, err = c.NewRequest("GET", url, nil); err != nil {
 		return
@@ -52,7 +51,7 @@ func (c *HTTPClient)Get(url string)(res *http.Response, err error){
 	return c.Do(req)
 }
 
-func (c *HTTPClient)GetJson(url string, obj any)(err error){
+func (c *HTTPClient) GetJson(url string, obj any) (err error) {
 	var req *http.Request
 	if req, err = c.NewRequest("GET", url, nil); err != nil {
 		return
@@ -71,7 +70,7 @@ func (c *HTTPClient)GetJson(url string, obj any)(err error){
 	return json.NewDecoder(res.Body).Decode(obj)
 }
 
-func (c *HTTPClient)GetXml(url string, obj any)(err error){
+func (c *HTTPClient) GetXml(url string, obj any) (err error) {
 	var req *http.Request
 	if req, err = c.NewRequest("GET", url, nil); err != nil {
 		return
@@ -90,24 +89,24 @@ func (c *HTTPClient)GetXml(url string, obj any)(err error){
 	return xml.NewDecoder(res.Body).Decode(obj)
 }
 
-type progressReader struct{
+type progressReader struct {
 	Reader io.Reader
-	read int64
-	size int64
-	cb DlCallback
+	read   int64
+	size   int64
+	cb     DlCallback
 }
 
-func newProgressReader(r io.Reader, size int64, cb DlCallback)(*progressReader){
+func newProgressReader(r io.Reader, size int64, cb DlCallback) *progressReader {
 	cb(0, size)
 	return &progressReader{
 		Reader: r,
-		read: 0,
-		size: size,
-		cb: cb,
+		read:   0,
+		size:   size,
+		cb:     cb,
 	}
 }
 
-func (r *progressReader)Read(buf []byte)(n int, err error){
+func (r *progressReader) Read(buf []byte) (n int, err error) {
 	n, err = r.Reader.Read(buf)
 	if n > 0 {
 		r.read += (int64)(n)
@@ -116,7 +115,7 @@ func (r *progressReader)Read(buf []byte)(n int, err error){
 	return
 }
 
-func (c *HTTPClient)DownloadTmp(url string, pattern string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback)(path string, err error){
+func (c *HTTPClient) DownloadTmp(url string, pattern string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback) (path string, err error) {
 	var res *http.Response
 	if res, err = c.Get(url); err != nil {
 		return
@@ -129,10 +128,10 @@ func (c *HTTPClient)DownloadTmp(url string, pattern string, mode os.FileMode, ha
 	}
 	if size < 0 {
 		size = res.ContentLength
-	}else if res.ContentLength < 0 && res.ContentLength != size {
+	} else if res.ContentLength < 0 && res.ContentLength != size {
 		err = &ContentLengthNotMatchErr{
 			ContentLength: res.ContentLength,
-			Expect: size,
+			Expect:        size,
 		}
 		return
 	}
@@ -145,7 +144,7 @@ func (c *HTTPClient)DownloadTmp(url string, pattern string, mode os.FileMode, ha
 	if fd, err = os.CreateTemp(dir, base); err != nil {
 		return
 	}
-	defer func(fd *os.File){
+	defer func(fd *os.File) {
 		fd.Close()
 		if err != nil {
 			os.Remove(fd.Name())
@@ -163,16 +162,16 @@ func (c *HTTPClient)DownloadTmp(url string, pattern string, mode os.FileMode, ha
 	return
 }
 
-func (c *HTTPClient)Download(url string, path string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback)(err error){
+func (c *HTTPClient) Download(url string, path string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback) (err error) {
 	var tmppath string
-	tmppath, err = c.DownloadTmp(url, path + ".*.downloading", mode, hashes, size, cb)
+	tmppath, err = c.DownloadTmp(url, path+".*.downloading", mode, hashes, size, cb)
 	if err = renameIfNotExist(tmppath, path); err != nil {
 		return
 	}
 	return
 }
 
-func (c *HTTPClient)Head(url string)(res *http.Response, err error){
+func (c *HTTPClient) Head(url string) (res *http.Response, err error) {
 	var req *http.Request
 	if req, err = c.NewRequest("HEAD", url, nil); err != nil {
 		return
@@ -180,7 +179,7 @@ func (c *HTTPClient)Head(url string)(res *http.Response, err error){
 	return c.Do(req)
 }
 
-func (c *HTTPClient)Post(url string, contentType string, body io.Reader)(res *http.Response, err error){
+func (c *HTTPClient) Post(url string, contentType string, body io.Reader) (res *http.Response, err error) {
 	var req *http.Request
 	if req, err = c.NewRequest("POST", url, body); err != nil {
 		return
@@ -189,7 +188,7 @@ func (c *HTTPClient)Post(url string, contentType string, body io.Reader)(res *ht
 	return c.Do(req)
 }
 
-func (c *HTTPClient)PostForm(url string, form url.Values)(res *http.Response, err error){
+func (c *HTTPClient) PostForm(url string, form url.Values) (res *http.Response, err error) {
 	formStr := form.Encode()
 	return c.Post(url, "application/x-www-form-urlencoded",
 		strings.NewReader(formStr))

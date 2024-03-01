@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -12,7 +11,7 @@ type Version struct {
 	Patch int
 }
 
-func VersionFromString(data string)(v Version, err error){
+func VersionFromString(data string) (v Version, err error) {
 	v.Major = 0
 	v.Minor = 0
 	v.Patch = 0
@@ -24,7 +23,7 @@ func VersionFromString(data string)(v Version, err error){
 	if v.Major, err = strconv.Atoi(data[:i]); err != nil {
 		return
 	}
-	data = data[i + 1:]
+	data = data[i+1:]
 	if i = strings.IndexByte(data, '.'); i < 0 {
 		v.Minor, err = strconv.Atoi(data)
 		return
@@ -32,17 +31,17 @@ func VersionFromString(data string)(v Version, err error){
 	if v.Minor, err = strconv.Atoi(data[:i]); err != nil {
 		return
 	}
-	if v.Patch, err = strconv.Atoi(data[i + 1:]); err != nil {
+	if v.Patch, err = strconv.Atoi(data[i+1:]); err != nil {
 		return
 	}
 	return
 }
 
-func (v Version)String()(s string){
+func (v Version) String() (s string) {
 	s = strconv.Itoa(v.Major) + "." + strconv.Itoa(v.Minor) + "." + strconv.Itoa(v.Patch)
 	return
 }
 
-func (v Version)Less(o Version)(bool){
+func (v Version) Less(o Version) bool {
 	return v.Major < o.Major || v.Minor < o.Minor || v.Patch < o.Patch
 }

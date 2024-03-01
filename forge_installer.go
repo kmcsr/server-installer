@@ -1,4 +1,3 @@
-
 package installer
 
 import (
@@ -22,7 +21,7 @@ var DefaultForgeInstaller = &ForgeInstaller{
 }
 var _ Installer = DefaultForgeInstaller
 
-func init(){
+func init() {
 	Installers["forge"] = DefaultForgeInstaller
 }
 
@@ -32,11 +31,11 @@ var v1_17 = Version{
 	Patch: 0,
 }
 
-func (r *ForgeInstaller)Install(path, name string, target string)(installed string, err error){
+func (r *ForgeInstaller) Install(path, name string, target string) (installed string, err error) {
 	return r.InstallWithLoader(path, name, target, "")
 }
 
-func (r *ForgeInstaller)InstallWithLoader(path, name string, target string, loader string)(installed string, err error){
+func (r *ForgeInstaller) InstallWithLoader(path, name string, target string, loader string) (installed string, err error) {
 	foundVersion := target
 	if target == "" || target == "latest" || target == "latest-snapshot" {
 		if target == "latest-snapshot" {
@@ -66,10 +65,10 @@ func (r *ForgeInstaller)InstallWithLoader(path, name string, target string, load
 		if err != nil {
 			return
 		}
-	}else{
+	} else {
 		version = target + "-" + loader
 	}
-	forgeInstallerUrl, err := url.JoinPath(r.MavenUrl, "net/minecraftforge/forge", version, "forge-" + version + "-installer.jar")
+	forgeInstallerUrl, err := url.JoinPath(r.MavenUrl, "net/minecraftforge/forge", version, "forge-"+version+"-installer.jar")
 	if err != nil {
 		return
 	}
@@ -96,18 +95,18 @@ func (r *ForgeInstaller)InstallWithLoader(path, name string, target string, load
 	}
 
 	if lessV1_17 { // < 1.17 use forge-<minecraft_version>-<loader_version>.jar
-		installed = filepath.Join(path, name + ".jar")
-		if err = renameIfNotExist("forge-" + version + ".jar", installed); err != nil {
+		installed = filepath.Join(path, name+".jar")
+		if err = renameIfNotExist("forge-"+version+".jar", installed); err != nil {
 			return
 		}
 		return
 	}
 	// >= 1.17 use run.sh or run.bat
-	installedSh := filepath.Join(path, name + ".sh")
+	installedSh := filepath.Join(path, name+".sh")
 	if err = renameIfNotExist("run.sh", installedSh); err != nil {
 		return
 	}
-	installedBat := filepath.Join(path, name + ".bat")
+	installedBat := filepath.Join(path, name+".bat")
 	if err = renameIfNotExist("run.bat", installedBat); err != nil {
 		return
 	}
@@ -118,19 +117,19 @@ func (r *ForgeInstaller)InstallWithLoader(path, name string, target string, load
 	return
 }
 
-func (r *ForgeInstaller)ListVersions(snapshot bool)(versions []string, err error){
+func (r *ForgeInstaller) ListVersions(snapshot bool) (versions []string, err error) {
 	data, err := r.GetInstallerVersions()
 	if err != nil {
 		return
 	}
 	for _, v := range data.Versioning.Versions {
 		i := strings.IndexByte(v, '-')
-		versions = append(versions, v[i + 1:])
+		versions = append(versions, v[i+1:])
 	}
 	return
 }
 
-func (r *ForgeInstaller)GetInstallerVersions()(data MavenMetadata, err error){
+func (r *ForgeInstaller) GetInstallerVersions() (data MavenMetadata, err error) {
 	link, err := url.JoinPath(r.MavenUrl, "net/minecraftforge/forge")
 	if err != nil {
 		return
@@ -138,19 +137,19 @@ func (r *ForgeInstaller)GetInstallerVersions()(data MavenMetadata, err error){
 	return GetMavenMetadata(link)
 }
 
-func (r *ForgeInstaller)GetLatestInstaller(target string)(version string, err error){
+func (r *ForgeInstaller) GetLatestInstaller(target string) (version string, err error) {
 	data, err := r.GetInstallerVersions()
 	if err != nil {
 		return
 	}
 	for _, v := range data.Versioning.Versions {
-		if strings.HasPrefix(v, target + "-") {
+		if strings.HasPrefix(v, target+"-") {
 			version = v
 			break
 		}
 	}
 	if len(version) == 0 {
-		return "", &VersionNotFoundErr{ "forge-" + target }
+		return "", &VersionNotFoundErr{"forge-" + target}
 	}
-	return 
+	return
 }
