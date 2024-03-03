@@ -47,9 +47,10 @@ func (*SpigotInstaller) Install(path, name string, target string) (installed str
 		foundVersion += "(" + target + ")"
 	}
 
-	buildDir := filepath.Join(os.TempDir(), "server-installer-" + PkgVersion + ".bukkit-build-tools.tmp")
+	buildDir := filepath.Join(os.TempDir(), "server-installer-"+PkgVersion+".bukkit-build-tools.tmp")
 	loger.Infof("Getting %q...", SpigotBuildToolsURI)
 	buildToolJar := filepath.Join(buildDir, "BuildTools.jar")
+	// TODO: use cached BuildTools.Jar if possible
 	if err = DefaultHTTPClient.Download(SpigotBuildToolsURI, buildToolJar, 0644, nil, -1,
 		downloadingCallback(SpigotBuildToolsURI)); err != nil {
 		return
@@ -67,7 +68,7 @@ func (*SpigotInstaller) Install(path, name string, target string) (installed str
 		return
 	}
 	installed = filepath.Join(path, name+".jar")
-	if err = renameIfNotExist(filepath.Join(buildDir, "spigot-"+target+".jar"), installed); err != nil {
+	if err = renameIfNotExist(filepath.Join(buildDir, "spigot-"+target+".jar"), installed, 0644); err != nil {
 		return
 	}
 	return

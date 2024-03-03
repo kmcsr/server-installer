@@ -96,18 +96,18 @@ func (r *ForgeInstaller) InstallWithLoader(path, name string, target string, loa
 
 	if lessV1_17 { // < 1.17 use forge-<minecraft_version>-<loader_version>.jar
 		installed = filepath.Join(path, name+".jar")
-		if err = renameIfNotExist("forge-"+version+".jar", installed); err != nil {
+		if err = renameIfNotExist("forge-"+version+".jar", installed, 0644); err != nil {
 			return
 		}
 		return
 	}
 	// >= 1.17 use run.sh or run.bat
 	installedSh := filepath.Join(path, name+".sh")
-	if err = renameIfNotExist("run.sh", installedSh); err != nil {
+	if err = renameIfNotExist("run.sh", installedSh, 0744); err != nil {
 		return
 	}
 	installedBat := filepath.Join(path, name+".bat")
-	if err = renameIfNotExist("run.bat", installedBat); err != nil {
+	if err = renameIfNotExist("run.bat", installedBat, 0744); err != nil {
 		return
 	}
 	installed = installedSh
@@ -142,8 +142,9 @@ func (r *ForgeInstaller) GetLatestInstaller(target string) (version string, err 
 	if err != nil {
 		return
 	}
+	tgName := target + "-"
 	for _, v := range data.Versioning.Versions {
-		if strings.HasPrefix(v, target+"-") {
+		if strings.HasPrefix(v, tgName) {
 			version = v
 			break
 		}

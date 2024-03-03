@@ -34,7 +34,7 @@ func (c *HTTPClient) NewRequest(method string, url string, body io.Reader) (req 
 }
 
 func (c *HTTPClient) Do(req *http.Request) (res *http.Response, err error) {
-	if _, ok := req.Header["User-Agent"]; !ok {
+	if ua := req.Header.Get("User-Agent"); ua == "" {
 		req.Header.Set("User-Agent", c.UserAgent)
 	}
 	if res, err = c.Client.Do(req); err != nil {
@@ -165,7 +165,7 @@ func (c *HTTPClient) DownloadTmp(url string, pattern string, mode os.FileMode, h
 func (c *HTTPClient) Download(url string, path string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback) (err error) {
 	var tmppath string
 	tmppath, err = c.DownloadTmp(url, path+".*.downloading", mode, hashes, size, cb)
-	if err = renameIfNotExist(tmppath, path); err != nil {
+	if err = renameIfNotExist(tmppath, path, 0644); err != nil {
 		return
 	}
 	return
