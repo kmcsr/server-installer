@@ -21,28 +21,7 @@ var EmptyLinkArrayErr = errors.New("Link array is empty")
 
 type StringMap = map[string]string
 
-func osCopy(src, dst string, mode os.FileMode) (err error) {
-	srcFd, err := os.Open(src)
-	if err != nil {
-		return
-	}
-	defer srcFd.Close()
-	dstFd, err := os.OpenFile(dst, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, mode)
-	if err != nil {
-		return
-	}
-	_, err = io.Copy(dstFd, srcFd)
-	if er := dstFd.Close(); err == nil && er != nil {
-		err = er
-	}
-	if err != nil {
-		os.Remove(dst)
-		return
-	}
-	return
-}
-
-func renameIfNotExist(src, dst string, mode os.FileMode) (err error) {
+func renameIfNotExist(src, dst string) (err error) {
 	if _, e := os.Stat(dst); os.IsNotExist(e) {
 		if err = os.MkdirAll(filepath.Dir(dst), 0755); err != nil {
 			return
@@ -56,16 +35,8 @@ func renameIfNotExist(src, dst string, mode os.FileMode) (err error) {
 		}
 	}
 	if err = os.Rename(src, dst); err != nil {
-		if crossDevice(err) {
-			if err = osCopy(src, dst, mode); err != nil {
-				return
-			}
-			os.Remove(src)
-			return
-		}
 		return
 	}
-	os.Chmod(dst, mode)
 	return
 }
 
@@ -80,7 +51,7 @@ func safeDownload(reader io.Reader, path string) (err error) {
 	if err != nil {
 		return
 	}
-	if err = renameIfNotExist(fd.Name(), path, 0644); err != nil {
+	if err = renameIfNotExist(fd.Name(), path); err != nil {
 		return
 	}
 	return nil
@@ -160,12 +131,12 @@ func downloadAnyAndCheckHashes(links []string, path string, hashes StringMap, si
 	}
 	for _, l := range links {
 		var tmp string
-		if tmp, err = DefaultHTTPClient.DownloadTmp(l, "*.downloading", 0644, hashes, size,
+		if tmp, err = DefaultHTTPClient.DownloadTmp(l, "downloading_", 0644, hashes, size,
 			downloadingCallback(l)); err != nil {
 			continue
 		}
 		defer os.Remove(tmp)
-		if err = renameIfNotExist(tmp, path, 0644); err != nil {
+		if err = renameIfNotExist(tmp, path); err != nil {
 			return
 		}
 		break
