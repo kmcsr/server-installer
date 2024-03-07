@@ -1,0 +1,24 @@
+name: Pull Request Ready
+on:
+  pull_request:
+    #
+
+jobs:
+  request:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Action Checkout
+        uses: actions/checkout@v3
+      -
+        name: Setup Golang
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+          cache-dependency-path: ./go.sum
+      -
+        name: Go Vet
+        run: go vet ./...
+      -
+        name: Go Test
+        run: go test -v ./...
