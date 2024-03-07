@@ -22,8 +22,10 @@
 | Forge       | 是    |
 | Quilt       | 是    |
 | Spigot      | 是    |
-| PaperMC     | 进行中 |
-| ArcLight    | 进行中 |
+| PaperMC     | 是    |
+| ArcLight    | 是    |
+| Mohist      | 计划中/否    |
+| Catserver   | 计划中/否    |
 
 | 整合包类型     | 支持     |
 |--------------|----------|
@@ -76,6 +78,12 @@ minecraft_installer -name minecraft_server -version 1.16.5 -server forge
 minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path server
 ```
 
+```sh
+# 将 papermc 1.14.4 服务端下载到 {PATH}/server-1.14.4-{BUILDNUM}/{PAPERMC-INSTALLED-NAME}.jar
+minecraft_installer -name minecraft_server -version 1.14.4 -server papermc
+# 注：papermc以及arclight服务器因build区别会区分到不同文件夹中，执行中会自动建立此文件夹，更加方便识别
+```
+
 ### 安装整合包
 
 ```sh
@@ -100,3 +108,7 @@ minecraft_installer versions
 ```sh
 minecraft_installer -version snapshot versions
 ```
+## 计划中
+
+- [ ] 从modrinth搜寻整合包
+- [ ] 代理相关

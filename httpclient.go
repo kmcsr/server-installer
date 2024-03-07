@@ -34,7 +34,7 @@ func (c *HTTPClient) NewRequest(method string, url string, body io.Reader) (req 
 }
 
 func (c *HTTPClient) Do(req *http.Request) (res *http.Response, err error) {
-	if ua := req.Header.Get("User-Agent"); ua == "" {
+	if _, ok := req.Header["User-Agent"]; !ok {
 		req.Header.Set("User-Agent", c.UserAgent)
 	}
 	if res, err = c.Client.Do(req); err != nil {
@@ -165,9 +165,46 @@ func (c *HTTPClient) DownloadTmp(url string, pattern string, mode os.FileMode, h
 func (c *HTTPClient) Download(url string, path string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback) (err error) {
 	var tmppath string
 	tmppath, err = c.DownloadTmp(url, path+".*.downloading", mode, hashes, size, cb)
-	if err = renameIfNotExist(tmppath, path, 0644); err != nil {
+	if err = renameIfNotExist(tmppath, path); err != nil {
 		return
 	}
+	return
+}
+
+func (c *HTTPClient) DownloadDirect(url string, ExactDownloadeName string, cb DlCallback) (installed string, err error) {
+	resp, err := http.Head(url)
+	if err != nil {
+		return
+	}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	filename := filepath.Base(url)
+	flags := os.O_CREATE | os.O_WRONLY
+	f, err := os.OpenFile(filename, flags, 0666)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	buf := make([]byte, 16*1024)
+	_, err = io.CopyBuffer(f, resp.Body, buf)
+	if err != nil {
+		if err == io.EOF {
+			return
+		}
+	}
+	cpath, err := os.Getwd()
+	if err != nil {
+		return
+	}
+	installed = filepath.Join(cpath, ExactDownloadeName)
 	return
 }
 
