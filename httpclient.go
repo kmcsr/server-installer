@@ -34,7 +34,7 @@ func (c *HTTPClient) NewRequest(method string, url string, body io.Reader) (req 
 }
 
 func (c *HTTPClient) Do(req *http.Request) (res *http.Response, err error) {
-	if _, ok := req.Header["User-Agent"]; !ok {
+	if ua := req.Header.Get("User-Agent"); ua == "" {
 		req.Header.Set("User-Agent", c.UserAgent)
 	}
 	if res, err = c.Client.Do(req); err != nil {
@@ -165,10 +165,33 @@ func (c *HTTPClient) DownloadTmp(url string, pattern string, mode os.FileMode, h
 func (c *HTTPClient) Download(url string, path string, mode os.FileMode, hashes StringMap, size int64, cb DlCallback) (err error) {
 	var tmppath string
 	tmppath, err = c.DownloadTmp(url, path+".*.downloading", mode, hashes, size, cb)
-	if err = renameIfNotExist(tmppath, path); err != nil {
+	if err = renameIfNotExist(tmppath, path, 0644); err != nil {
 		return
 	}
 	return
+}
+
+func (c *HTTPClient) Head(url string) (res *http.Response, err error) {
+	var req *http.Request
+	if req, err = c.NewRequest("HEAD", url, nil); err != nil {
+		return
+	}
+	return c.Do(req)
+}
+
+func (c *HTTPClient) Post(url string, contentType string, body io.Reader) (res *http.Response, err error) {
+	var req *http.Request
+	if req, err = c.NewRequest("POST", url, body); err != nil {
+		return
+	}
+	req.Header.Set("Content-Type", contentType)
+	return c.Do(req)
+}
+
+func (c *HTTPClient) PostForm(url string, form url.Values) (res *http.Response, err error) {
+	formStr := form.Encode()
+	return c.Post(url, "application/x-www-form-urlencoded",
+		strings.NewReader(formStr))
 }
 
 func (c *HTTPClient) DownloadDirect(url string, ExactDownloadeName string, cb DlCallback) (installed string, err error) {
@@ -206,27 +229,4 @@ func (c *HTTPClient) DownloadDirect(url string, ExactDownloadeName string, cb Dl
 	}
 	installed = filepath.Join(cpath, ExactDownloadeName)
 	return
-}
-
-func (c *HTTPClient) Head(url string) (res *http.Response, err error) {
-	var req *http.Request
-	if req, err = c.NewRequest("HEAD", url, nil); err != nil {
-		return
-	}
-	return c.Do(req)
-}
-
-func (c *HTTPClient) Post(url string, contentType string, body io.Reader) (res *http.Response, err error) {
-	var req *http.Request
-	if req, err = c.NewRequest("POST", url, body); err != nil {
-		return
-	}
-	req.Header.Set("Content-Type", contentType)
-	return c.Do(req)
-}
-
-func (c *HTTPClient) PostForm(url string, form url.Values) (res *http.Response, err error) {
-	formStr := form.Encode()
-	return c.Post(url, "application/x-www-form-urlencoded",
-		strings.NewReader(formStr))
 }
