@@ -193,3 +193,40 @@ func (c *HTTPClient) PostForm(url string, form url.Values) (res *http.Response, 
 	return c.Post(url, "application/x-www-form-urlencoded",
 		strings.NewReader(formStr))
 }
+
+func (c *HTTPClient) DownloadDirect(url string, ExactDownloadeName string, cb DlCallback) (installed string, err error) {
+	resp, err := http.Head(url)
+	if err != nil {
+		return
+	}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return
+	}
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+	filename := filepath.Base(url)
+	flags := os.O_CREATE | os.O_WRONLY
+	f, err := os.OpenFile(filename, flags, 0666)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	buf := make([]byte, 16*1024)
+	_, err = io.CopyBuffer(f, resp.Body, buf)
+	if err != nil {
+		if err == io.EOF {
+			return
+		}
+	}
+	cpath, err := os.Getwd()
+	if err != nil {
+		return
+	}
+	installed = filepath.Join(cpath, ExactDownloadeName)
+	return
+}
