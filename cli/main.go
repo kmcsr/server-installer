@@ -101,6 +101,10 @@ func main() {
 			installed, err = installer.DefaultFabricInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, fabric)
 		} else if quilt, ok := pack.Deps["quilt-loader"]; ok {
 			installed, err = installer.DefaultQuiltInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, quilt)
+		} else if papermc, ok := pack.Deps["papermc-loader"]; ok {
+			installed, err = installer.DefaultQuiltInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, papermc)
+		} else if arclight, ok := pack.Deps["arclight-loader"]; ok {
+			installed, err = installer.DefaultQuiltInstaller.InstallWithLoader(InstallPath, ExecutableName, minecraft, arclight)
 		} else if mok {
 			installed, err = installer.VanillaIns.Install(InstallPath, ExecutableName, minecraft)
 		} else {
