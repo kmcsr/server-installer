@@ -19,15 +19,17 @@ This is a minecraft server online installer
 You can use this cli to easily install minecraft server.  
 We also support some types of servers and modpacks
 
-| Server Type | Support |
-|-------------|---------|
-| Vanilla     | true    |
-| Fabric      | true    |
-| Forge       | true    |
-| Quilt       | true    |
-| Spigot      | true    |
-| PaperMC     | TODO    |
-| ArcLight    | TODO    |
+| Server Type  | Support |
+|--------------|---------|
+| Vanilla      | true    |
+| Fabric       | true    |
+| Forge        | true    |
+| Quilt        | true    |
+| Spigot       | true    |
+| PaperMC      | true    |
+| ArcLight     | true    |
+| Mohist       | TODO    |
+| Catserver    | TODO    |
 
 | Modpack Type | Support |
 |--------------|---------|
@@ -51,7 +53,7 @@ Flags:
         the version of the server need to be installed, default is the latest (default "latest")
 Args:
   <server_type> string
-        type of the server [fabric forge quilt spigot vanilla] (default "vanilla" )
+        type of the server [fabric forge quilt spigot vanilla papermc arclight] (default "vanilla" )
   <modpack_file> filepath | URL
         the modpack's local path or an URL. If it's an URL, installer will download the modpack first
 ```
@@ -80,6 +82,12 @@ minecraft_installer -name minecraft_server -version 1.16.5 -server forge
 minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path server
 ```
 
+```sh
+# Install papermc 1.14.4 server into server-1.14.4-{BUILDNUM}/{PAPERMC-INSTALLED-NAME}.jar
+minecraft_installer -name minecraft_server -version 1.14.4 -server papermc
+# papermc and arclight installation will automatically generate different directories for different builder.
+```
+
 ### Install modpacks
 
 ```sh
@@ -105,8 +113,8 @@ minecraft_installer versions
 minecraft_installer -version snapshot versions
 ```
 
+
 ## TODO
 
-- [ ] PaperMC
 - [ ] Search modpacks from modrinth
 - [ ] Configurable proxy
