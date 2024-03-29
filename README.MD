@@ -83,9 +83,9 @@ minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path 
 ```
 
 ```sh
-# Install papermc 1.14.4 server into server-1.14.4-{BUILDNUM}/{PAPERMC-INSTALLED-NAME}.jar
+# Install papermc 1.14.4 server into server/minecraft_server.jar
 minecraft_installer -name minecraft_server -version 1.14.4 -server papermc
-# papermc and arclight installation will automatically generate different directories for different builder.
+# papermc and arclight installation will automatically generate and rename different directories for different builder.
 ```
 
 ### Install modpacks
