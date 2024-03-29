@@ -108,6 +108,7 @@ minecraft_installer versions
 ```sh
 minecraft_installer -version snapshot versions
 ```
+
 ## 计划中
 
 - [ ] 从modrinth搜寻整合包
