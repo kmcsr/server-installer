@@ -10,19 +10,18 @@ import (
 )
 
 type (
-	ArclightInstaller struct {
+	ArclightInstaller struct {}
+
+	ArclightAssets struct {
+		AssetsUrl   string `json:"url"`
+		AssetsName  string `json:"name"`
+		DownloadUrl string `json:"browser_download_url"`
 	}
 
 	ArclightRelease struct {
 		Assets      []ArclightAssets `json:"assets"`
 		IsExpired   bool
 		PublishTime string `json:"published_at"`
-	}
-
-	ArclightAssets struct {
-		AssetsUrl   string `json:"url"`
-		AssetsName  string `json:"name"`
-		DownloadUrl string `json:"browser_download_url"`
 	}
 )
 
@@ -61,27 +60,27 @@ func (r *ArclightInstaller) InstallWithLoader(path, name string, target string, 
 		}
 		if !alreadyFind {
 			loger.Info("not find the suitable builder, the version should be included in the following list:")
-			for i := 0; i < len(allVersions); i += 1 {
-				if versions[allVersions[i]].IsExpired {
-					loger.Info("versions:", allVersions[i], "  EXPIRED, DO NOT SUPPORT")
+			for _, version := range allVersions {
+				if versions[version].IsExpired {
+					loger.Info("versions:", version, "  EXPIRED, DO NOT SUPPORT")
 				} else {
-					loger.Info("versions:", allVersions[i])
+					loger.Info("versions:", version)
 				}
 			}
 			return "", &VersionNotFoundErr{target}
 		}
 	}
-	ExactDownloadeName := versions[loader].Assets[0].AssetsName
+	exactDownloadeName := versions[loader].Assets[0].AssetsName
 	ArclightInstallerUrl := versions[loader].Assets[0].DownloadUrl
 	if version, ok := versions[loader]; ok && version.IsExpired {
 		loger.Fatal("Sorry, the one you choose has already expired, try another version.")
 		return "", &VersionNotFoundErr{target}
 	}
 	var buildJar string
-	if buildJar, err = DefaultHTTPClient.DownloadDirect(ArclightInstallerUrl, ExactDownloadeName, downloadingCallback(ArclightInstallerUrl)); err != nil {
+	if buildJar, err = DefaultHTTPClient.DownloadDirect(ArclightInstallerUrl, exactDownloadeName, downloadingCallback(ArclightInstallerUrl)); err != nil {
 		return
 	}
-	installed, err = r.Runbuilder(buildJar, ExactDownloadeName, path)
+	installed, err = r.Runbuilder(buildJar, exactDownloadeName, path)
 	if err != nil {
 		loger.Info("an error occurred while running the server jar file, but you can still do that manually.")
 		loger.Error(err)
@@ -89,24 +88,20 @@ func (r *ArclightInstaller) InstallWithLoader(path, name string, target string, 
 	return
 }
 
-func (r *ArclightInstaller) ListVersions(snapshot bool) (versions []string, err error) {
-	data, err := r.GetInstallerVersions()
+func (r *ArclightInstaller) ListVersions(snapshot bool) ([]string, error) {
+	additionalVersions, err := r.GetInstallerVersions()
 	if err != nil {
-		return
+		return nil, err
 	}
-	var dataVersions []string = r.GetOnlyVersions(data)
-	for _, v := range dataVersions {
-		versions = append(versions, v)
-	}
-	return
+	return r.GetOnlyVersions(additionalVersions), err
 }
 
 func (r *ArclightInstaller) GetLatestVersion() (version string, err error) {
-	data, err := r.GetInstallerVersions()
+	additionalVersions, err := r.GetInstallerVersions()
 	if err != nil {
 		return
 	}
-	var dataVersions []string = r.GetOnlyVersions(data)
+	var dataVersions []string = r.GetOnlyVersions(additionalVersions)
 	var v0, v1 Version
 	for _, v := range dataVersions {
 		if v1, err = VersionFromString(v); err != nil {
@@ -121,51 +116,49 @@ func (r *ArclightInstaller) GetLatestVersion() (version string, err error) {
 }
 
 func (r *ArclightInstaller) GetInstallerVersions() (map[string]ArclightRelease, error) {
-	data := make(map[string]ArclightRelease)
+	additionalVersions := make(map[string]ArclightRelease)
 	link := "https://api.github.com/repos/IzzelAliz/Arclight/releases"
 	var releases []*ArclightRelease
 	err := DefaultHTTPClient.GetJson(link, &releases)
 	if err != nil {
-		return data, err
+		return additionalVersions, err
 	}
 	for _, release := range releases {
 		details := strings.Split(release.Assets[0].AssetsName, "-")
-		//details should be ["arclight","forge","{VERSION}","{BUILDNUM}.jar"], so append value of index 2
+		// details should be ["arclight","forge","{VERSION}","{BUILDNUM}.jar"], so append value of index 2
 		timeDetails := strings.Split(release.PublishTime, "-")
-		//time should be "{YEAR}-{MONTH}-{DATE}T{CLOCK}}"
+		// time should be "{YEAR}-{MONTH}-{DATE}T{CLOCK}}"
 		year, err := strconv.Atoi(timeDetails[0])
 		if err != nil {
-			return data, err
+			return additionalVersions, err
 		}
 		month, err := strconv.Atoi(timeDetails[1])
 		if err != nil {
-			return data, err
+			return additionalVersions, err
 		}
 		if year < 2024 || (year == 2024 && month < 2) {
 			release.IsExpired = true
 		} else {
 			release.IsExpired = false
 		}
-		if len(data[details[2]].Assets) == 0 {
-			data[details[2]] = *release
+		if len(additionalVersions[details[2]].Assets) == 0 {
+			additionalVersions[details[2]] = *release
 		}
-		//to get the newest builder for each version
+		// to get the newest builder for each version
 	}
-	return data, err
+	return additionalVersions, err
 }
 
-func (r *ArclightInstaller) GetOnlyVersions(data map[string]ArclightRelease) (versions []string) {
-	for k, _ := range data {
+func (r *ArclightInstaller) GetOnlyVersions(additionalVersions map[string]ArclightRelease) (versions []string) {
+	for k, _ := range additionalVersions {
 		versions = append(versions, k)
 	}
 	return
 }
 
 func (r *ArclightInstaller) Runbuilder(buildJar string, ExactDownloadName string, path string) (installed string, err error) {
-	if err != nil {
-		return
-	}
-	NameWithoutSuffix := ExactDownloadName[0 : len(ExactDownloadName)-4]
+	const SUFFIX_LENGTH int = 4
+	NameWithoutSuffix := ExactDownloadName[0 : len(ExactDownloadName)-SUFFIX_LENGTH]
 	serverDirectory := filepath.Join(".", "server-"+NameWithoutSuffix)
 	os.RemoveAll(serverDirectory)
 	err = os.MkdirAll(serverDirectory, os.ModePerm)
@@ -185,13 +178,13 @@ func (r *ArclightInstaller) Runbuilder(buildJar string, ExactDownloadName string
 		return
 	}
 	cmd := exec.CommandContext(ctx, javapath, "-jar", buildJar)
-	cmd.Dir = filepath.Join(path, "server-"+ExactDownloadName[0:len(ExactDownloadName)-4])
+	cmd.Dir = filepath.Join(path, "server-"+ExactDownloadName[0 : len(ExactDownloadName)-SUFFIX_LENGTH])
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
 	loger.Infof("Running %q...", cmd.String())
 	if err = cmd.Run(); err != nil {
 		return
 	}
-	installed = buildJar + "\n"
+	installed = buildJar
 	return
 }
