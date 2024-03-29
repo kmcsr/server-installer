@@ -79,9 +79,9 @@ minecraft_installer -name minecraft_server -version 1.19.2 -server fabric -path 
 ```
 
 ```sh
-# 将 papermc 1.14.4 服务端下载到 server-1.14.4-{BUILDNUM}/{PAPERMC-INSTALLED-NAME}.jar
+# 将 papermc 1.14.4 服务端下载到 server/minecraft_server.jar
 minecraft_installer -name minecraft_server -version 1.14.4 -server papermc
-# 注：papermc以及arclight服务器因build区别会区分到不同文件夹中，执行中会自动建立此文件夹，更加方便识别
+# 注：papermc以及arclight服务器因build区别会区分到不同文件夹中，执行中会自动建立并命名此server文件夹，更加方便识别
 ```
 
 ### 安装整合包
