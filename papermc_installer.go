@@ -44,27 +44,29 @@ func (r *PapermcInstaller) Install(path, name string, target string) (installed 
 
 func (r *PapermcInstaller) InstallWithLoader(path, name string, target string, loader string) (installed string, err error) {
 	if len(loader) == 0 {
+		var alreadyFind bool = false
 		allVersions, err := r.GetInstallerVersions()
 		if err != nil {
 			return "", err
 		}
 		if target == "latest" {
 			loader = allVersions[len(allVersions)-1]
-			goto DownloadPart
+			alreadyFind = true
 		}
 		for i := 0; i < len(allVersions); i += 1 {
 			if allVersions[i] == target {
 				loader = target
-				goto DownloadPart
+				alreadyFind = true
 			}
 		}
-		loger.Info("not find the suitable builder, the version should be included in the following list:")
-		for i := 0; i < len(allVersions); i += 1 {
-			loger.Info("versions:", allVersions[i])
+		if !alreadyFind {
+			loger.Info("not find the suitable builder, the version should be included in the following list:")
+			for i := 0; i < len(allVersions); i += 1 {
+				loger.Info("versions:", allVersions[i])
+			}
+			return "", &VersionNotFoundErr{target}
 		}
-		return "", &VersionNotFoundErr{target}
 	}
-DownloadPart:
 	buildNumInt, err := r.GetBuildNumber(loader)
 	if err != nil {
 		return
@@ -80,7 +82,7 @@ DownloadPart:
 	if buildJar, err = DefaultHTTPClient.DownloadDirect(PapermcInstallerUrl, ExactDownloadeName, downloadingCallback(PapermcInstallerUrl)); err != nil {
 		return
 	}
-	installed, err = r.Runbuilder(buildJar, ExactDownloadeName, path)
+	installed, err = r.Runbuilder(buildJar, name, ExactDownloadeName, path)
 	if err != nil {
 		loger.Info("an error occurred while running the server jar file, but you can still do that manually.")
 		loger.Error(err)
@@ -124,22 +126,19 @@ func (r *PapermcInstaller) GetBuildNumber(version string) (buildNum int, err err
 	return buildNum, err
 }
 
-func (r *PapermcInstaller) Runbuilder(buildJar string, ExactDownloadName string, path string) (installed string, err error) {
-	currentDir, err := os.Getwd()
-	if err != nil {
-		return
-	}
-	serverDirectory := filepath.Join(currentDir, "server-"+ExactDownloadName[0:len(ExactDownloadName)-4])
+func (r *PapermcInstaller) Runbuilder(buildJar string, name string, ExactDownloadName string, path string) (installed string, err error) {
+	const SUFFIX string = ".jar"
+	serverDirectory := filepath.Join(".", "server-"+ExactDownloadName[0:len(ExactDownloadName)-len(SUFFIX)])
 	os.RemoveAll(serverDirectory)
 	err = os.MkdirAll(serverDirectory, os.ModePerm)
 	if err != nil {
 		return
 	}
-	err = os.Rename(buildJar, filepath.Join(serverDirectory, ExactDownloadName))
+	err = os.Rename(buildJar, filepath.Join(serverDirectory, name+SUFFIX))
 	if err != nil {
 		return
 	}
-	buildJar = filepath.Join(serverDirectory, ExactDownloadName)
+	buildJar = filepath.Join(serverDirectory, name+SUFFIX)
 	loger.Info("Server jar file is successfully installed in path: " + buildJar)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -148,7 +147,7 @@ func (r *PapermcInstaller) Runbuilder(buildJar string, ExactDownloadName string,
 		return
 	}
 	cmd := exec.CommandContext(ctx, javapath, "-jar", buildJar)
-	cmd.Dir = filepath.Join(path, "server-"+ExactDownloadName[0:len(ExactDownloadName)-4])
+	cmd.Dir = filepath.Join(path, "server-"+ExactDownloadName[0:len(ExactDownloadName)-len(SUFFIX)])
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stdout
 	loger.Infof("Running %q...", cmd.String())
