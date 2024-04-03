@@ -126,17 +126,16 @@ func (r *ArclightInstaller) GetInstallerVersions() (map[string]ArclightRelease, 
 	for _, release := range releases {
 		details := strings.Split(release.Assets[0].AssetsName, "-")
 		// details should be ["arclight","forge","{VERSION}","{BUILDNUM}.jar"], so append value of index 2
-		timeDetails := strings.Split(release.PublishTime, "-")
-		// time should be "{YEAR}-{MONTH}-{DATE}T{CLOCK}}"
-		year, err := strconv.Atoi(timeDetails[0])
-		if err != nil {
+		layout := "2006-01-02T14:41:48Z"
+		timeDetails, err := time.Parse(layout, release.PublishTime)
+		if err != nil{
 			return additionalVersions, err
 		}
-		month, err := strconv.Atoi(timeDetails[1])
-		if err != nil {
-			return additionalVersions, err
-		}
-		if year < 2024 || (year == 2024 && month < 2) {
+		year := timeDetails.Year()
+		month := timeDetails.Month()
+		expiredYear := 2024
+		expiredMonth := time.February
+		if year < expiredYear || (year == expiredYear && month < expiredMonth) {
 			release.IsExpired = true
 		} else {
 			release.IsExpired = false
