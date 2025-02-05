@@ -43,7 +43,7 @@ func parseArgs() {
 	flag.Usage = func() {
 		out := flag.CommandLine.Output()
 		fmt.Fprintf(out, "Usage of %s (%s):\n", os.Args[0], installer.PkgVersion)
-		fmt.Fprint(out, UsageText)
+		fmt.Fprintf(out, "%s", UsageText)
 		fmt.Fprintln(out, "Flags:")
 		fmt.Fprintln(out, "  -h, -help")
 		fmt.Fprintln(out, "        Show this help page")
