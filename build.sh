@@ -19,7 +19,7 @@ function _build(){
 	go build \
 	 -trimpath -gcflags "-trimpath=${GOPATH}" -asmflags "-trimpath=${GOPATH}" \
 	 -ldflags "-w -s -X '${pkg_path}.PkgVersion=${tag}'" \
-	 -o "./output/$f" "./cli"
+	 -o "./output/$f" "./minecraft_installer"
 	return $?
 }
 

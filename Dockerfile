@@ -2,7 +2,7 @@
 
 ARG GO_VERSION=1.20
 ARG REPO=github.com/kmcsr/server-installer
-ARG SUB_FOLDER=cli
+ARG SUB_FOLDER=minecraft_installer
 
 FROM golang:${GO_VERSION}-alpine AS BUILD
 
