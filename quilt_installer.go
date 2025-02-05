@@ -79,11 +79,11 @@ func (r *QuiltInstaller) InstallWithLoader(path, name string, target string, loa
 
 	// --download-server flag will install vanilla server to server.jar, we need rename it
 	if name == "server" { // name collision
-		if err = renameIfNotExist("server.jar", "vanilla_server.jar", 0644); err != nil {
+		if err = renameIfNotExist(filepath.Join(path, "server.jar"), filepath.Join(path, "vanilla_server.jar"), 0644); err != nil {
 			return
 		}
 		var fd *os.File
-		if fd, err = os.Create("quilt-server-launcher.properties"); err != nil {
+		if fd, err = os.Create(filepath.Join(path, "quilt-server-launcher.properties")); err != nil {
 			return
 		}
 		if _, err = fd.Write(([]byte)(time.Now().Format("#" + time.UnixDate + "\n"))); err != nil {
@@ -95,7 +95,7 @@ func (r *QuiltInstaller) InstallWithLoader(path, name string, target string, loa
 	}
 	// Quilt use quilt-server-launch.jar, for some reason, the --create-scripts flag won't work
 	installed = filepath.Join(path, name+".jar")
-	if err = renameIfNotExist("quilt-server-launch.jar", installed, 0644); err != nil {
+	if err = renameIfNotExist(filepath.Join(path, "quilt-server-launch.jar"), installed, 0644); err != nil {
 		return
 	}
 	return

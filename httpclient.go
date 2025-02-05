@@ -140,6 +140,7 @@ func (c *HTTPClient) DownloadTmp(url string, pattern string, mode os.FileMode, h
 		r = newProgressReader(r, size, cb)
 	}
 	dir, base := filepath.Split(pattern)
+	os.MkdirAll(dir, 0755)
 	var fd *os.File
 	if fd, err = os.CreateTemp(dir, base); err != nil {
 		return
