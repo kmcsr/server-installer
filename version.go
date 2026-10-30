@@ -43,5 +43,11 @@ func (v Version) String() (s string) {
 }
 
 func (v Version) Less(o Version) bool {
-	return v.Major < o.Major || v.Minor < o.Minor || v.Patch < o.Patch
+	if v.Major != o.Major {
+		return v.Major < o.Major
+	}
+	if v.Minor != o.Minor {
+		return v.Minor < o.Minor
+	}
+	return v.Patch < o.Patch
 }

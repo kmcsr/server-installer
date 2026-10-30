@@ -20,7 +20,7 @@ type HTTPClient struct {
 
 var DefaultHTTPClient = &HTTPClient{
 	Client: http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Minute * 10,
 	},
 	UserAgent: "github.com/kmcsr/server-installer/" + PkgVersion,
 }

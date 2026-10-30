@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
@@ -209,4 +210,12 @@ func downloadingCallback(url string) DlCallback {
 			loger.Infof("Downloading %q [%s/%s %.2f%%]\n", url, formatSize(n, "%.2f"), formatSize(size, "%.2f"), (float32)(n)/(float32)(size)*100)
 		}
 	}
+}
+
+func split(s string, b byte) (left, right string) {
+	i := strings.IndexByte(s, b)
+	if i < 0 {
+		return s, ""
+	}
+	return s[:i], s[i+1:]
 }

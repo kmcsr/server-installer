@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 )
 
@@ -134,7 +135,32 @@ func (r *ForgeInstaller) GetInstallerVersions() (data MavenMetadata, err error) 
 	if err != nil {
 		return
 	}
-	return GetMavenMetadata(link)
+	data, err = GetMavenMetadata(link)
+	if err != nil {
+		return
+	}
+	slices.SortFunc(data.Versioning.Versions, func(a, b string) int {
+		al, ar := split(a, '-')
+		bl, br := split(b, '-')
+		alv, _ := VersionFromString(al)
+		blv, _ := VersionFromString(bl)
+		if alv != blv {
+			if alv.Less(blv) {
+				return 1
+			}
+			return -1
+		}
+		arv, _ := VersionFromString(ar)
+		brv, _ := VersionFromString(br)
+		if arv != brv {
+			if arv.Less(brv) {
+				return 1
+			}
+			return -1
+		}
+		return 0
+	})
+	return
 }
 
 func (r *ForgeInstaller) GetLatestInstaller(target string) (version string, err error) {
