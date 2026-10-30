@@ -41,7 +41,7 @@ fi
 for p in "${available_platforms[@]}"; do
 	os=${p%/*}
 	arch=${p#*/}
-	echo "Building $target ..."
+	echo "Building $p..."
 	if [ -n "$ASYNC_BUILD" ]; then
 		logf="$(pwd)/logs.tmp/${os}-${arch}.log"
 		{

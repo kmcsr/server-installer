@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1.2
 
-ARG GO_VERSION=1.20
+ARG GO_VERSION=1.27
 ARG REPO=github.com/kmcsr/server-installer
 ARG SUB_FOLDER=minecraft_installer
 
