@@ -23,8 +23,11 @@ function _build(){
 	return $?
 }
 
-arch32=(386 arm)
-arch64=(amd64 arm64)
+available_platforms=(
+	darwin/amd64 darwin/arm64
+	linux/386 linux/amd64 linux/arm linux/arm64
+	windows/386 windows/amd64
+)
 
 if [ "$ASYNC_BUILD" = 0 ] || [ "$ASYNC_BUILD" = false ]; then
 	ASYNC_BUILD=
@@ -34,48 +37,22 @@ else
 	[ -f .flag.error ] && rm .flag.error
 fi
 
-for arch in "${arch32[@]}" "${arch64[@]}"; do
-	if [ -n "$ASYNC_BUILD" ]; then
-		logf="$(pwd)/logs.tmp/linux-${arch}.log"
-		{
-			if ! GOOS=linux GOARCH=$arch _build; then
-				touch .flag.error
-				exit 1
-			fi
-			echo "[+++] Done" >&2
-		} 1>"$logf" &
-	else
-		GOOS=linux GOARCH=$arch _build || exit $?
-	fi
-done
 
-for arch in "${arch32[@]}" "${arch64[@]}"; do
+for p in "${available_platforms[@]}"; do
+	os=${p%/*}
+	arch=${p#*/}
+	echo "Building $target ..."
 	if [ -n "$ASYNC_BUILD" ]; then
-		logf="$(pwd)/logs.tmp/windows-${arch}.log"
+		logf="$(pwd)/logs.tmp/${os}-${arch}.log"
 		{
-			if ! GOOS=windows GOARCH=$arch _build; then
+			if ! GOOS=$os GOARCH=$arch _build; then
 				touch .flag.error
 				exit 1
 			fi
 			echo "[+++] Done" >&2
 		} 1>"$logf" &
 	else
-		GOOS=windows GOARCH=$arch _build || exit $?
-	fi
-done
-
-for arch in "${arch64[@]}"; do
-	if [ -n "$ASYNC_BUILD" ]; then
-		logf="$(pwd)/logs.tmp/darwin-${arch}.log"
-		{
-			if ! GOOS=darwin GOARCH=$arch _build; then
-				touch .flag.error
-				exit 1
-			fi
-			echo "[+++] Done" >&2
-		} 1>"$logf" &
-	else
-		GOOS=darwin GOARCH=$arch _build || exit $?
+		GOOS=$os GOARCH=$arch _build || exit $?
 	fi
 done
 
